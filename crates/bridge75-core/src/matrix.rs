@@ -100,105 +100,150 @@ pub struct Key {
     pub pos: KeyPos,
     /// Entry in the default keymap.
     pub default: KeyEntry,
+    /// Where the keycap sits on the board.
+    pub rect: KeyRect,
 }
 
-const fn k(id: &'static str, label: &'static str, row: u8, col: u8, usage: u8) -> Key {
+/// Width of the board in quarter units (16u).
+pub const BOARD_WIDTH: u8 = 64;
+/// Height of the board in quarter units (6.25u).
+pub const BOARD_HEIGHT: u8 = 25;
+
+/// Keycap rectangle in quarter units (4 = 1u), measured from the top-left corner of the board.
+#[derive(Clone, Copy, PartialEq, Eq, Debug)]
+pub struct KeyRect {
+    pub x: u8,
+    pub y: u8,
+    pub w: u8,
+    pub h: u8,
+}
+
+impl KeyRect {
+    /// Top edge of a matrix row. The function row sits 0.25u above the rest.
+    const fn row_top(row: u8) -> u8 {
+        if row == 0 { 0 } else { row * 4 + 1 }
+    }
+}
+
+const fn k(
+    id: &'static str,
+    label: &'static str,
+    row: u8,
+    col: u8,
+    usage: u8,
+    x: u8,
+    w: u8,
+) -> Key {
     Key {
         id,
         label,
         pos: KeyPos::new(row, col),
         default: KeyEntry::key(usage),
+        rect: KeyRect {
+            x,
+            y: KeyRect::row_top(row),
+            w,
+            h: 4,
+        },
     }
 }
 
 /// Layout taken from the official configurator's `KeyInfo_75ALHE.config` (docs/protocol.md section 9).
+///
+/// The geometry converts the config's on-screen `PosX` / `Width` (1u = about 36.75 px) to quarter units.
 pub static LAYOUT: [Key; 81] = [
-    k("esc", "Esc", 0, 0, 0x29),
-    k("f1", "F1", 0, 2, 0x3A),
-    k("f2", "F2", 0, 3, 0x3B),
-    k("f3", "F3", 0, 4, 0x3C),
-    k("f4", "F4", 0, 5, 0x3D),
-    k("f5", "F5", 0, 6, 0x3E),
-    k("f6", "F6", 0, 7, 0x3F),
-    k("f7", "F7", 0, 8, 0x40),
-    k("f8", "F8", 0, 9, 0x41),
-    k("f9", "F9", 0, 10, 0x42),
-    k("f10", "F10", 0, 11, 0x43),
-    k("f11", "F11", 0, 12, 0x44),
-    k("f12", "F12", 0, 13, 0x45),
-    k("del", "Del", 0, 15, 0x4C),
-    k("grave", "`~", 1, 0, 0x35),
-    k("1", "1!", 1, 1, 0x1E),
-    k("2", "2@", 1, 2, 0x1F),
-    k("3", "3#", 1, 3, 0x20),
-    k("4", "4$", 1, 4, 0x21),
-    k("5", "5%", 1, 5, 0x22),
-    k("6", "6^", 1, 6, 0x23),
-    k("7", "7&", 1, 7, 0x24),
-    k("8", "8*", 1, 8, 0x25),
-    k("9", "9(", 1, 9, 0x26),
-    k("0", "0)", 1, 10, 0x27),
-    k("minus", "-_", 1, 11, 0x2D),
-    k("equal", "=+", 1, 12, 0x2E),
-    k("backspace", "Back", 1, 14, 0x2A),
-    k("home", "Home", 1, 15, 0x4A),
-    k("tab", "Tab", 2, 0, 0x2B),
-    k("q", "Q", 2, 1, 0x14),
-    k("w", "W", 2, 2, 0x1A),
-    k("e", "E", 2, 3, 0x08),
-    k("r", "R", 2, 4, 0x15),
-    k("t", "T", 2, 5, 0x17),
-    k("y", "Y", 2, 6, 0x1C),
-    k("u", "U", 2, 7, 0x18),
-    k("i", "I", 2, 8, 0x0C),
-    k("o", "O", 2, 9, 0x12),
-    k("p", "P", 2, 10, 0x13),
-    k("lbracket", "[{", 2, 11, 0x2F),
-    k("rbracket", "]}", 2, 12, 0x30),
-    k("backslash", "\\|", 2, 14, 0x31),
-    k("pgup", "PgUp", 2, 15, 0x4B),
-    k("caps", "Caps", 3, 0, 0x39),
-    k("a", "A", 3, 2, 0x04),
-    k("s", "S", 3, 3, 0x16),
-    k("d", "D", 3, 4, 0x07),
-    k("f", "F", 3, 5, 0x09),
-    k("g", "G", 3, 6, 0x0A),
-    k("h", "H", 3, 7, 0x0B),
-    k("j", "J", 3, 8, 0x0D),
-    k("k", "K", 3, 9, 0x0E),
-    k("l", "L", 3, 10, 0x0F),
-    k("semicolon", ";:", 3, 11, 0x33),
-    k("quote", "'\"", 3, 12, 0x34),
-    k("enter", "Enter", 3, 14, 0x28),
-    k("pgdn", "PgDn", 3, 15, 0x4E),
-    k("lshift", "LShift", 4, 0, 0xE1),
-    k("z", "Z", 4, 2, 0x1D),
-    k("x", "X", 4, 3, 0x1B),
-    k("c", "C", 4, 4, 0x06),
-    k("v", "V", 4, 5, 0x19),
-    k("b", "B", 4, 6, 0x05),
-    k("n", "N", 4, 7, 0x11),
-    k("m", "M", 4, 8, 0x10),
-    k("comma", ",<", 4, 9, 0x36),
-    k("dot", ".>", 4, 10, 0x37),
-    k("slash", "/?", 4, 11, 0x38),
-    k("rshift", "RShift", 4, 13, 0xE5),
-    k("up", "Up", 4, 14, 0x52),
-    k("end", "End", 4, 15, 0x4D),
-    k("lctrl", "LCtrl", 5, 0, 0xE0),
-    k("lwin", "LWin", 5, 1, 0xE3),
-    k("lalt", "LAlt", 5, 2, 0xE2),
-    k("space", "Space", 5, 6, 0x2C),
-    k("ralt", "RAlt", 5, 10, 0xE6),
+    k("esc", "Esc", 0, 0, 0x29, 0, 4),
+    k("f1", "F1", 0, 2, 0x3A, 6, 4),
+    k("f2", "F2", 0, 3, 0x3B, 10, 4),
+    k("f3", "F3", 0, 4, 0x3C, 14, 4),
+    k("f4", "F4", 0, 5, 0x3D, 18, 4),
+    k("f5", "F5", 0, 6, 0x3E, 24, 4),
+    k("f6", "F6", 0, 7, 0x3F, 28, 4),
+    k("f7", "F7", 0, 8, 0x40, 32, 4),
+    k("f8", "F8", 0, 9, 0x41, 36, 4),
+    k("f9", "F9", 0, 10, 0x42, 42, 4),
+    k("f10", "F10", 0, 11, 0x43, 46, 4),
+    k("f11", "F11", 0, 12, 0x44, 50, 4),
+    k("f12", "F12", 0, 13, 0x45, 54, 4),
+    k("del", "Del", 0, 15, 0x4C, 60, 4),
+    k("grave", "`~", 1, 0, 0x35, 0, 4),
+    k("1", "1!", 1, 1, 0x1E, 4, 4),
+    k("2", "2@", 1, 2, 0x1F, 8, 4),
+    k("3", "3#", 1, 3, 0x20, 12, 4),
+    k("4", "4$", 1, 4, 0x21, 16, 4),
+    k("5", "5%", 1, 5, 0x22, 20, 4),
+    k("6", "6^", 1, 6, 0x23, 24, 4),
+    k("7", "7&", 1, 7, 0x24, 28, 4),
+    k("8", "8*", 1, 8, 0x25, 32, 4),
+    k("9", "9(", 1, 9, 0x26, 36, 4),
+    k("0", "0)", 1, 10, 0x27, 40, 4),
+    k("minus", "-_", 1, 11, 0x2D, 44, 4),
+    k("equal", "=+", 1, 12, 0x2E, 48, 4),
+    k("backspace", "Back", 1, 14, 0x2A, 52, 8),
+    k("home", "Home", 1, 15, 0x4A, 60, 4),
+    k("tab", "Tab", 2, 0, 0x2B, 0, 6),
+    k("q", "Q", 2, 1, 0x14, 6, 4),
+    k("w", "W", 2, 2, 0x1A, 10, 4),
+    k("e", "E", 2, 3, 0x08, 14, 4),
+    k("r", "R", 2, 4, 0x15, 18, 4),
+    k("t", "T", 2, 5, 0x17, 22, 4),
+    k("y", "Y", 2, 6, 0x1C, 26, 4),
+    k("u", "U", 2, 7, 0x18, 30, 4),
+    k("i", "I", 2, 8, 0x0C, 34, 4),
+    k("o", "O", 2, 9, 0x12, 38, 4),
+    k("p", "P", 2, 10, 0x13, 42, 4),
+    k("lbracket", "[{", 2, 11, 0x2F, 46, 4),
+    k("rbracket", "]}", 2, 12, 0x30, 50, 4),
+    k("backslash", "\\|", 2, 14, 0x31, 54, 6),
+    k("pgup", "PgUp", 2, 15, 0x4B, 60, 4),
+    k("caps", "Caps", 3, 0, 0x39, 0, 7),
+    k("a", "A", 3, 2, 0x04, 7, 4),
+    k("s", "S", 3, 3, 0x16, 11, 4),
+    k("d", "D", 3, 4, 0x07, 15, 4),
+    k("f", "F", 3, 5, 0x09, 19, 4),
+    k("g", "G", 3, 6, 0x0A, 23, 4),
+    k("h", "H", 3, 7, 0x0B, 27, 4),
+    k("j", "J", 3, 8, 0x0D, 31, 4),
+    k("k", "K", 3, 9, 0x0E, 35, 4),
+    k("l", "L", 3, 10, 0x0F, 39, 4),
+    k("semicolon", ";:", 3, 11, 0x33, 43, 4),
+    k("quote", "'\"", 3, 12, 0x34, 47, 4),
+    k("enter", "Enter", 3, 14, 0x28, 51, 9),
+    k("pgdn", "PgDn", 3, 15, 0x4E, 60, 4),
+    k("lshift", "LShift", 4, 0, 0xE1, 0, 9),
+    k("z", "Z", 4, 2, 0x1D, 9, 4),
+    k("x", "X", 4, 3, 0x1B, 13, 4),
+    k("c", "C", 4, 4, 0x06, 17, 4),
+    k("v", "V", 4, 5, 0x19, 21, 4),
+    k("b", "B", 4, 6, 0x05, 25, 4),
+    k("n", "N", 4, 7, 0x11, 29, 4),
+    k("m", "M", 4, 8, 0x10, 33, 4),
+    k("comma", ",<", 4, 9, 0x36, 37, 4),
+    k("dot", ".>", 4, 10, 0x37, 41, 4),
+    k("slash", "/?", 4, 11, 0x38, 45, 4),
+    k("rshift", "RShift", 4, 13, 0xE5, 49, 7),
+    k("up", "Up", 4, 14, 0x52, 56, 4),
+    k("end", "End", 4, 15, 0x4D, 60, 4),
+    k("lctrl", "LCtrl", 5, 0, 0xE0, 0, 5),
+    k("lwin", "LWin", 5, 1, 0xE3, 5, 5),
+    k("lalt", "LAlt", 5, 2, 0xE2, 10, 5),
+    k("space", "Space", 5, 6, 0x2C, 15, 25),
+    k("ralt", "RAlt", 5, 10, 0xE6, 40, 5),
     Key {
         id: "fn",
         label: "Fn",
         pos: KeyPos::new(5, 11),
         default: KeyEntry::FN,
+        rect: KeyRect {
+            x: 45,
+            y: KeyRect::row_top(5),
+            w: 5,
+            h: 4,
+        },
     },
-    k("left", "Left", 5, 13, 0x50),
-    k("down", "Down", 5, 14, 0x51),
-    k("right", "Right", 5, 15, 0x4F),
+    k("left", "Left", 5, 13, 0x50, 52, 4),
+    k("down", "Down", 5, 14, 0x51, 56, 4),
+    k("right", "Right", 5, 15, 0x4F, 60, 4),
 ];
 
 /// Key selection bitmap (22 bytes). Keys whose `bit[row]` in `byte[col]` is 1 are selected.
@@ -342,6 +387,43 @@ mod tests {
             } else {
                 assert_eq!(key.id, "fn");
             }
+        }
+    }
+
+    #[test]
+    fn geometry_fits_the_board_without_overlaps() {
+        for (i, key) in LAYOUT.iter().enumerate() {
+            let r = key.rect;
+            assert!(r.w >= 4 && r.h == 4, "{}", key.id);
+            assert!(
+                r.x + r.w <= BOARD_WIDTH && r.y + r.h <= BOARD_HEIGHT,
+                "{}",
+                key.id
+            );
+            for other in &LAYOUT[i + 1..] {
+                let o = other.rect;
+                let apart =
+                    r.x + r.w <= o.x || o.x + o.w <= r.x || r.y + r.h <= o.y || o.y + o.h <= r.y;
+                assert!(apart, "{} overlaps {}", key.id, other.id);
+            }
+        }
+    }
+
+    #[test]
+    fn geometry_follows_matrix_order() {
+        // Within a row, columns run left to right.
+        for row in 0..ROWS as u8 {
+            let xs: Vec<u8> = LAYOUT
+                .iter()
+                .filter(|k| k.pos.row == row)
+                .map(|k| k.rect.x)
+                .collect();
+            assert!(xs.windows(2).all(|w| w[0] < w[1]), "row {row}");
+        }
+        // Rows 1-5 fill 16u, ignoring the gaps in front of the arrow keys.
+        for id in ["home", "pgup", "pgdn", "end", "right"] {
+            let rect = id.parse::<KeyPos>().unwrap().key().unwrap().rect;
+            assert_eq!(rect.x + rect.w, BOARD_WIDTH, "{id}");
         }
     }
 
