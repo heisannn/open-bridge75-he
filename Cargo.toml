@@ -14,8 +14,12 @@ bridge75-device = { path = "crates/bridge75-device" }
 anyhow = "1"
 clap = { version = "4.6", features = ["derive"] }
 ctrlc = { version = "3", features = ["termination"] }
+dirs = "6"
 gpui-kit = "0.8.1"
 hidapi = "2.6"
+# Same major version as gpui-component, so both share one current locale.
+rust-i18n = "4.2"
 serde = { version = "1", features = ["derive"] }
+sys-locale = "0.3"
 thiserror = "2"
 toml = "1"

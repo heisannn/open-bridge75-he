@@ -1,8 +1,8 @@
 # open-bridge75-he
 
-An unofficial configurator for the Bridge75 HE magnetic keyboard (FW internal name 75ALHE). It provides a command-line tool now; a desktop app (GPUI Kit) is planned.
+An unofficial configurator for the Bridge75 HE magnetic keyboard (FW internal name 75ALHE). It provides a command-line tool and an early desktop app (GPUI Kit).
 
-The CLI is tested on the real keyboard (FW V1.13.10, Windows 11). The desktop app is still a placeholder.
+The CLI is tested on the real keyboard (FW V1.13.10, Windows 11). The desktop app so far shows the keyboard's info, edits trigger settings (written as soon as they change, and undoable with Ctrl+Z) and shows live key travel. Its UI is in English and Japanese.
 
 ## Crates
 
@@ -11,7 +11,7 @@ The CLI is tested on the real keyboard (FW V1.13.10, Windows 11). The desktop ap
 | `bridge75-core` | Common types and the HID protocol: packets, key matrix, settings, TOML profiles. No I/O |
 | `bridge75-device` | Raw HID communication through hidapi |
 | `bridge75-cli` | The `bridge75` command |
-| `bridge75-app` | Desktop app (GPUI Kit). Not built by default |
+| `bridge75-app` | Desktop app (GPUI Kit). Not built by default. UI text is in `crates/bridge75-app/locales/app.yml` |
 
 ## Build
 

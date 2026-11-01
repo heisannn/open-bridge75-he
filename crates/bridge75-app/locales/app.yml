@@ -1,0 +1,258 @@
+_version: 2
+
+# Keys name the intent of the text. Every key needs `en` and `ja`.
+
+app.title:
+  en: Bridge75 HE
+  ja: Bridge75 HE
+
+nav.overview:
+  en: Keyboard
+  ja: キーボード
+nav.trigger:
+  en: Trigger
+  ja: トリガー
+nav.monitor:
+  en: Key travel
+  ja: 押し込み量
+nav.preferences:
+  en: Settings
+  ja: 設定
+
+status.searching:
+  en: Not connected
+  ja: 未接続
+status.bootloader:
+  en: Update mode
+  ja: 更新モード
+status.unavailable:
+  en: Can't connect
+  ja: 接続できません
+status.connected:
+  en: Connected
+  ja: 接続済み
+
+overview.title:
+  en: Keyboard
+  ja: キーボード
+overview.description:
+  en: What the connected keyboard reports about itself.
+  ja: 接続されたキーボードから読み取った情報です。
+overview.searching:
+  en: Connect the Bridge75 HE with a USB cable.
+  ja: Bridge75 HE を USB ケーブルで接続してください。
+overview.bootloader:
+  en: The keyboard is in firmware update mode. Unplug the USB cable and plug it back in.
+  ja: キーボードがファームウェア更新モードになっています。USB ケーブルを抜いて、もう一度挿してください。
+overview.unavailable:
+  en: A keyboard was found, but it couldn't be opened. The app keeps trying.
+  ja: キーボードは見つかりましたが、開けませんでした。引き続き接続を試みます。
+overview.rejected:
+  en: A device was found, but it didn't identify itself as a Bridge75 HE, so the app leaves it alone. To try again, unplug the USB cable and plug it back in.
+  ja: デバイスは見つかりましたが、Bridge75 HE として確認できなかったため、操作していません。もう一度試すには、USB ケーブルを抜いて挿し直してください。
+overview.stopped:
+  en: The connection to the keyboard stopped unexpectedly. Restart the app to connect again.
+  ja: キーボードとの接続処理が予期せず停止しました。もう一度接続するには、アプリを再起動してください。
+overview.firmware:
+  en: Firmware
+  ja: ファームウェア
+overview.build:
+  en: Build date
+  ja: ビルド日時
+overview.serial:
+  en: Serial number
+  ja: シリアル番号
+overview.serial_unknown:
+  en: Unknown
+  ja: 不明
+overview.calibration:
+  en: Calibration
+  ja: キャリブレーション
+overview.calibrated:
+  en: Done
+  ja: 実施済み
+overview.not_calibrated:
+  en: Not done
+  ja: 未実施
+overview.win_lock:
+  en: Windows key lock
+  ja: Windows キーのロック
+overview.on:
+  en: "On"
+  ja: オン
+overview.off:
+  en: "Off"
+  ja: オフ
+
+keyboard.not_connected:
+  en: Connect the keyboard to change its settings.
+  ja: 設定を変更するには、キーボードを接続してください。
+
+trigger.title:
+  en: Trigger
+  ja: トリガー
+trigger.description:
+  en: Choose where each key actuates. Click a key to select it; Ctrl+click adds or removes keys.
+  ja: キーが反応する位置を設定します。キーをクリックして選択し、Ctrl+クリックで選択に追加したり、選択から外したりできます。
+trigger.board:
+  en: Keys
+  ja: キー
+trigger.legend.actuation:
+  en: Numbers show the actuation point in mm.
+  ja: 数字は作動位置（mm）です。
+trigger.loading:
+  en: Reading the trigger settings…
+  ja: トリガー設定を読み込んでいます…
+trigger.load_failed:
+  en: Couldn't read the trigger settings. Check the USB cable and try again.
+  ja: トリガー設定を読み込めませんでした。USB ケーブルを確認して、もう一度お試しください。
+trigger.retry:
+  en: Try again
+  ja: 再試行
+trigger.select_all:
+  en: Select all
+  ja: すべて選択
+trigger.clear_selection:
+  en: Clear selection
+  ja: 選択を解除
+trigger.selected_one:
+  en: 1 key selected
+  ja: 1 キーを選択中
+trigger.selected_many:
+  en: "%{count} keys selected"
+  ja: "%{count} キーを選択中"
+trigger.undo:
+  en: Undo
+  ja: 元に戻す
+trigger.undo_tooltip:
+  en: Undo the last change
+  ja: 直前の変更を元に戻す
+trigger.no_selection:
+  en: Select keys to change their settings.
+  ja: 設定を変更するキーを選択してください。
+trigger.mode:
+  en: Mode
+  ja: モード
+trigger.mode.normal:
+  en: Normal
+  ja: 通常
+trigger.mode.split:
+  en: Normal with release point
+  ja: 通常（リリース位置あり）
+trigger.mode.rapid:
+  en: Rapid Trigger
+  ja: ラピッドトリガー
+trigger.mode.rapid_split:
+  en: Rapid Trigger with exit point
+  ja: ラピッドトリガー（終了位置あり）
+# Short marks on the keycaps, explained by the legend under the board.
+trigger.mark.normal:
+  en: "N"
+  ja: "N"
+trigger.mark.split:
+  en: NR
+  ja: NR
+trigger.mark.rapid:
+  en: RT
+  ja: RT
+trigger.mark.rapid_split:
+  en: RE
+  ja: RE
+trigger.actuation:
+  en: Actuation point
+  ja: 作動位置
+trigger.release:
+  en: Release point
+  ja: リリース位置
+trigger.rt_exit:
+  en: Rapid Trigger exit point
+  ja: ラピッドトリガー終了位置
+trigger.rt_press:
+  en: Press sensitivity
+  ja: 押し込み感度
+trigger.rt_release:
+  en: Release sensitivity
+  ja: リリース感度
+trigger.mixed:
+  en: Varies by key
+  ja: キーごとに異なる
+trigger.decrease:
+  en: Decrease by 0.1 mm
+  ja: 0.1 mm 減らす
+trigger.increase:
+  en: Increase by 0.1 mm
+  ja: 0.1 mm 増やす
+trigger.decrease_field:
+  en: Decrease %{field}
+  ja: "%{field}を減らす"
+trigger.increase_field:
+  en: Increase %{field}
+  ja: "%{field}を増やす"
+
+unit.mm:
+  en: "%{value} mm"
+  ja: "%{value} mm"
+
+monitor.title:
+  en: Key travel
+  ja: 押し込み量
+monitor.description:
+  en: Shows how far each key is pressed. When several keys move at the same moment, the keyboard reports only one of them.
+  ja: 各キーの押し込み量を表示します。複数のキーが同時に動いたときは、キーボードがそのうち 1 つだけを報告します。
+monitor.not_connected:
+  en: Connect the keyboard to see key travel.
+  ja: 押し込み量を表示するには、キーボードを接続してください。
+monitor.start_failed:
+  en: Couldn't start showing key travel. Open this page again to retry.
+  ja: 押し込み量の表示を開始できませんでした。このページを開き直すと、もう一度試します。
+
+preferences.title:
+  en: Settings
+  ja: 設定
+preferences.description:
+  en: Settings of this app. They are kept on this computer, not on the keyboard.
+  ja: このアプリの設定です。キーボードではなく、このコンピューターに保存されます。
+preferences.language:
+  en: Language
+  ja: 言語
+preferences.language.system:
+  en: Same as the system
+  ja: システムに合わせる
+# Language names are written in their own language.
+preferences.language.english:
+  en: English
+  ja: English
+preferences.language.japanese:
+  en: 日本語
+  ja: 日本語
+preferences.appearance:
+  en: Appearance
+  ja: 外観
+preferences.appearance.system:
+  en: Same as the system
+  ja: システムに合わせる
+preferences.appearance.light:
+  en: Light
+  ja: ライト
+preferences.appearance.dark:
+  en: Dark
+  ja: ダーク
+preferences.save_failed:
+  en: Couldn't save the settings
+  ja: 設定を保存できませんでした
+preferences.save_failed.body:
+  en: The change applies until the app is closed.
+  ja: 変更はアプリを閉じるまで有効です。
+
+error.load_failed:
+  en: Couldn't read from the keyboard
+  ja: キーボードから読み込めませんでした
+error.load_failed.body:
+  en: Check the USB cable, then choose Try again on the Trigger page.
+  ja: USB ケーブルを確認してから、「トリガー」ページの「再試行」を選んでください。
+error.write_failed:
+  en: Couldn't change the keyboard setting
+  ja: キーボードの設定を変更できませんでした
+error.write_failed.body:
+  en: The page now shows the settings the keyboard has. Check the USB cable and try again.
+  ja: ページには、キーボードに現在保存されている設定を表示しています。USB ケーブルを確認して、もう一度お試しください。
