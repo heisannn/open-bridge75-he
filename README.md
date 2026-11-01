@@ -2,7 +2,35 @@
 
 An unofficial configurator for the Bridge75 HE magnetic keyboard (FW internal name 75ALHE). It provides a command-line tool and an early desktop app (GPUI Kit).
 
-The CLI is tested on the real keyboard (FW V1.13.10, Windows 11). The desktop app so far shows the keyboard's info, edits trigger settings (written as soon as they change, and undoable with Ctrl+Z) and shows live key travel. Its UI is in English and Japanese.
+The CLI is tested on the real keyboard (FW V1.13.10, Windows 11). The desktop app is in progress.
+
+## Features
+
+### Command-line tool (`bridge75`)
+
+- [x] Keyboard info: FW version, build date, serial number, calibration status
+- [x] Trigger settings per key: actuation point, release point, Rapid Trigger sensitivity (show, set, reset)
+- [x] Debounce, polling rate and sleep time
+- [x] Calibration of one key or all keys
+- [x] Live key travel, and raw sensor values with CSV recording
+- [x] SOCD pairs (shown here, written through a profile)
+- [x] TOML profiles: back up the readable settings, check a profile, and write the keymap (base and Fn layers), macros, advanced keys (DKS, Mod-Tap, Toggle) and SOCD
+
+### Desktop app (`bridge75-app`)
+
+- [x] Connection status and keyboard info
+- [x] Trigger settings on a to-scale keyboard: written as soon as they change, undo with Ctrl+Z, keyboard navigation
+- [x] Live key travel
+- [x] English and Japanese UI, light and dark appearance
+- [ ] Keymap (base and Fn layers)
+- [ ] Macros
+- [ ] Advanced keys (DKS, Mod-Tap, Toggle)
+- [ ] SOCD
+- [ ] Debounce, polling rate and sleep time
+- [ ] Calibration
+- [ ] Open and save TOML profiles
+- [ ] Remember the keymap, macros and advanced keys of each keyboard (the keyboard cannot report them)
+- [ ] Import settings from the official configurator
 
 ## Crates
 
