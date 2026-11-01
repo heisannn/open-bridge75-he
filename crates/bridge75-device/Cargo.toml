@@ -1,0 +1,10 @@
+[package]
+name = "bridge75-device"
+version.workspace = true
+edition.workspace = true
+description = "Raw HID communication with the Bridge75 HE"
+
+[dependencies]
+bridge75-core.workspace = true
+hidapi.workspace = true
+thiserror.workspace = true

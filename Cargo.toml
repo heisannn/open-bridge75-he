@@ -1,0 +1,21 @@
+[workspace]
+resolver = "3"
+members = ["crates/*"]
+default-members = ["crates/bridge75-core", "crates/bridge75-device", "crates/bridge75-cli"]
+
+[workspace.package]
+version = "0.1.0"
+edition = "2024"
+
+[workspace.dependencies]
+bridge75-core = { path = "crates/bridge75-core" }
+bridge75-device = { path = "crates/bridge75-device" }
+
+anyhow = "1"
+clap = { version = "4.6", features = ["derive"] }
+ctrlc = { version = "3", features = ["termination"] }
+gpui-kit = "0.8.1"
+hidapi = "2.6"
+serde = { version = "1", features = ["derive"] }
+thiserror = "2"
+toml = "1"

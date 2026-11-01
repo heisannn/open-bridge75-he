@@ -1,0 +1,16 @@
+[package]
+name = "bridge75-cli"
+version.workspace = true
+edition.workspace = true
+description = "Command-line configurator for the Bridge75 HE"
+
+[[bin]]
+name = "bridge75"
+path = "src/main.rs"
+
+[dependencies]
+bridge75-core.workspace = true
+bridge75-device.workspace = true
+anyhow.workspace = true
+clap.workspace = true
+ctrlc.workspace = true

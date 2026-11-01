@@ -1,0 +1,10 @@
+[package]
+name = "bridge75-core"
+version.workspace = true
+edition.workspace = true
+description = "Common types and HID protocol for the Bridge75 HE (75ALHE), with no I/O"
+
+[dependencies]
+serde.workspace = true
+thiserror.workspace = true
+toml.workspace = true
