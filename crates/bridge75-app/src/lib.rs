@@ -9,6 +9,7 @@ rust_i18n::i18n!("locales", fallback = "en");
 
 mod assets;
 mod document;
+mod general;
 mod keyboard;
 mod keymap;
 mod monitor;
@@ -74,6 +75,7 @@ pub fn run() {
             let document = document::new(session.clone(), cx);
             let keymap = keymap::new(session.clone(), cx);
             let socd = socd::new(session.clone(), cx);
+            let general = general::new(session.clone(), cx);
             // Window geometry is a platform boundary, so it is given in pixels.
             let options = WindowOptions {
                 window_bounds: Some(WindowBounds::centered(size(px(1180.), px(800.)), cx)),
@@ -82,7 +84,7 @@ pub fn run() {
             };
             gpui_kit::open_window(options, cx, |window, cx| {
                 window.set_window_title(&rust_i18n::t!("app.title"));
-                cx.new(|cx| shell::Shell::new(session, document, keymap, socd, window, cx))
+                cx.new(|cx| shell::Shell::new(session, document, keymap, socd, general, window, cx))
             })
             .expect("failed to open the main window");
 

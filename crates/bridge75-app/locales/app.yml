@@ -90,6 +90,46 @@ overview.off:
   en: "Off"
   ja: オフ
 
+general.loading:
+  en: Reading the keyboard settings…
+  ja: キーボードの設定を読み込んでいます…
+general.load_failed:
+  en: Couldn't read the keyboard settings. Check the USB cable and try again.
+  ja: キーボードの設定を読み込めませんでした。USB ケーブルを確認して、もう一度お試しください。
+general.retry:
+  en: Try again
+  ja: 再試行
+general.default:
+  en: "Default: %{value}"
+  ja: "既定: %{value}"
+general.debounce:
+  en: Debounce
+  ja: デバウンス
+general.debounce.description:
+  en: Higher values ignore more sensor noise, but each step can delay presses and releases by up to 1 ms.
+  ja: 値を大きくするほどセンサーのノイズを無視しますが、1 増やすごとに押下とリリースの検出が最大 1 ms 遅れます。
+general.debounce.decrease:
+  en: Decrease debounce
+  ja: デバウンスを減らす
+general.debounce.increase:
+  en: Increase debounce
+  ja: デバウンスを増やす
+general.polling_rate:
+  en: Polling rate
+  ja: ポーリングレート
+general.polling_rate.description:
+  en: Only the polling rate test uses this rate. While Fn, O and K are held, the keyboard moves the mouse pointer in circles at this rate. Keys are always reported at 8 kHz.
+  ja: この値はポーリングレートのテストでのみ使われます。Fn・O・K を押している間、キーボードはこの頻度でマウスポインターを円を描くように動かします。キー入力は常に 8 kHz で送られます。
+general.sleep:
+  en: Sleep after
+  ja: スリープまでの時間
+general.sleep.minutes:
+  en: "%{minutes} minutes"
+  ja: "%{minutes} 分"
+general.sleep.seconds:
+  en: "%{seconds} seconds"
+  ja: "%{seconds} 秒"
+
 keyboard.not_connected:
   en: Connect the keyboard to change its settings.
   ja: 設定を変更するには、キーボードを接続してください。
@@ -584,6 +624,9 @@ socd.remove_pair:
 unit.mm:
   en: "%{value} mm"
   ja: "%{value} mm"
+unit.khz:
+  en: "%{value} kHz"
+  ja: "%{value} kHz"
 
 monitor.title:
   en: Key travel

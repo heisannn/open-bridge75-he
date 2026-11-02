@@ -38,9 +38,9 @@ See [docs/official-app.md](docs/official-app.md) for details.
 - [x] English and Japanese UI, light and dark appearance
 - [x] Keymap (base and Fn layers): kept on this computer for each keyboard, since the keyboard cannot report it
 - [x] SOCD: pairs, the behavior when both keys are held, and the SOCD switch
+- [x] Debounce, polling rate and sleep time
 - [ ] Macros
 - [ ] Advanced keys (DKS, Mod-Tap, Toggle)
-- [ ] Debounce, polling rate and sleep time
 - [ ] Calibration
 - [ ] Open and save TOML profiles
 - [ ] Remember the macros and advanced keys of each keyboard (the keyboard cannot report them)

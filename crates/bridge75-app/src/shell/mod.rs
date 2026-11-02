@@ -18,6 +18,7 @@ use gpui_kit::{
 use rust_i18n::t;
 
 use crate::document::{DocumentEvent, KeyboardDocument};
+use crate::general::{GeneralDocument, GeneralSection};
 use crate::keyboard;
 use crate::keymap::{KeymapDocument, KeymapPage};
 use crate::monitor::MonitorPage;
@@ -89,6 +90,7 @@ pub struct Shell {
     keymap: Entity<KeymapPage>,
     socd: Entity<SocdPage>,
     monitor: Entity<MonitorPage>,
+    general: Entity<GeneralSection>,
     /// Keeps the navigation shortcuts working when nothing inside a page has focus.
     focus_handle: FocusHandle,
     _subscriptions: Vec<Subscription>,
@@ -100,6 +102,7 @@ impl Shell {
         document: Entity<KeyboardDocument>,
         keymap: Entity<KeymapDocument>,
         socd: Entity<SocdDocument>,
+        general: Entity<GeneralDocument>,
         window: &mut Window,
         cx: &mut Context<Self>,
     ) -> Self {
@@ -107,12 +110,16 @@ impl Shell {
         let keymap = cx.new(|cx| KeymapPage::new(keymap, window, cx));
         let socd_page = cx.new(|cx| SocdPage::new(socd.clone(), cx));
         let monitor = cx.new(|cx| MonitorPage::new(session.clone(), cx));
+        let general_section = cx.new(|cx| GeneralSection::new(general.clone(), window, cx));
         let subscriptions = vec![
             cx.observe(&session, |_, _, cx| cx.notify()),
             cx.subscribe_in(&document, window, |_, _, event, window, cx| {
                 Self::notify_failure(event, window, cx)
             }),
             cx.subscribe_in(&socd, window, |_, _, event, window, cx| {
+                Self::notify_failure(event, window, cx)
+            }),
+            cx.subscribe_in(&general, window, |_, _, event, window, cx| {
                 Self::notify_failure(event, window, cx)
             }),
             // A focused control that goes away (an editor whose selection was cleared, a board
@@ -133,6 +140,7 @@ impl Shell {
             keymap,
             socd: socd_page,
             monitor,
+            general: general_section,
             focus_handle,
             _subscriptions: subscriptions,
         }
@@ -237,9 +245,9 @@ impl Shell {
 
     fn render_page(&self, cx: &mut Context<Self>) -> AnyElement {
         let page = match self.page {
-            Page::Overview => {
-                OverviewPage::new(self.session.read(cx).state().clone()).into_any_element()
-            }
+            Page::Overview => OverviewPage::new(self.session.read(cx).state().clone())
+                .settings(self.general.clone())
+                .into_any_element(),
             Page::Trigger => self.trigger.clone().into_any_element(),
             Page::Keymap => self.keymap.clone().into_any_element(),
             Page::Socd => self.socd.clone().into_any_element(),
@@ -383,8 +391,11 @@ mod shortcut_tests {
                         cx,
                     )
                 });
+                let general = cx.new(|cx| {
+                    GeneralDocument::for_test(crate::general::GeneralSettings::DEFAULT, cx)
+                });
                 let session = cx.new(|_| Session::detached());
-                cx.new(|cx| Shell::new(session, document, keymap, socd, window, cx))
+                cx.new(|cx| Shell::new(session, document, keymap, socd, general, window, cx))
             })
             .unwrap()
         });

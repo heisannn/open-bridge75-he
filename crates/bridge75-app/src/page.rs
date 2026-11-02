@@ -55,6 +55,8 @@ pub struct Field {
     label: SharedString,
     /// Shown after the label in muted text, such as a note that keys differ.
     note: Option<SharedString>,
+    /// Shown under the control in muted text: what the setting does, when its label can't say.
+    description: Option<SharedString>,
     control: AnyElement,
 }
 
@@ -63,12 +65,18 @@ impl Field {
         Field {
             label: label.into(),
             note: None,
+            description: None,
             control: control.into_any_element(),
         }
     }
 
     pub fn note(mut self, note: Option<SharedString>) -> Self {
         self.note = note;
+        self
+    }
+
+    pub fn description(mut self, description: impl Into<SharedString>) -> Self {
+        self.description = Some(description.into());
         self
     }
 }
@@ -89,5 +97,9 @@ impl RenderOnce for Field {
                     ),
             )
             .child(self.control)
+            .children(
+                self.description
+                    .map(|description| div().text_xs().text_color(muted).child(description)),
+            )
     }
 }

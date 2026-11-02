@@ -4,7 +4,8 @@ use gpui_kit::component::description_list::DescriptionList;
 use gpui_kit::component::{ActiveTheme as _, v_flex};
 use gpui_kit::prelude::FluentBuilder as _;
 use gpui_kit::{
-    App, IntoElement, ParentElement as _, RenderOnce, SharedString, Styled as _, Window, div, rems,
+    AnyElement, App, IntoElement, ParentElement as _, RenderOnce, SharedString, Styled as _,
+    Window, div, rems,
 };
 use rust_i18n::t;
 
@@ -14,11 +15,21 @@ use crate::session::{KeyboardInfo, SearchState, SessionState};
 #[derive(IntoElement)]
 pub struct OverviewPage {
     state: SessionState,
+    /// Settings of the whole keyboard, shown under its info while it is connected.
+    settings: Option<AnyElement>,
 }
 
 impl OverviewPage {
     pub fn new(state: SessionState) -> Self {
-        OverviewPage { state }
+        OverviewPage {
+            state,
+            settings: None,
+        }
+    }
+
+    pub fn settings(mut self, settings: impl IntoElement) -> Self {
+        self.settings = Some(settings.into_any_element());
+        self
     }
 
     fn render_info(info: &KeyboardInfo) -> impl IntoElement {
@@ -76,7 +87,11 @@ impl RenderOnce for OverviewPage {
     fn render(self, _: &mut Window, cx: &mut App) -> impl IntoElement {
         let muted = cx.theme().muted_foreground;
         let body = match &self.state {
-            SessionState::Connected { info, .. } => Self::render_info(info).into_any_element(),
+            SessionState::Connected { info, .. } => v_flex()
+                .gap_6()
+                .child(Self::render_info(info))
+                .children(self.settings)
+                .into_any_element(),
             SessionState::Searching(_) | SessionState::Stopped => {
                 let (message, detail): (SharedString, Option<&String>) = match &self.state {
                     SessionState::Searching(SearchState::Bootloader) => {
