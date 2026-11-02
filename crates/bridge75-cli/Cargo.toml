@@ -2,6 +2,7 @@
 name = "bridge75-cli"
 version.workspace = true
 edition.workspace = true
+license.workspace = true
 description = "Command-line configurator for the Bridge75 HE"
 
 [[bin]]

@@ -6,6 +6,7 @@ default-members = ["crates/bridge75-core", "crates/bridge75-device", "crates/bri
 [workspace.package]
 version = "0.1.0"
 edition = "2024"
+license = "MIT OR Apache-2.0"
 
 [workspace.dependencies]
 bridge75-core = { path = "crates/bridge75-core" }
