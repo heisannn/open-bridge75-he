@@ -18,6 +18,9 @@ nav.trigger:
 nav.keymap:
   en: Keymap
   ja: キーマップ
+nav.socd:
+  en: SOCD
+  ja: SOCD
 nav.monitor:
   en: Key travel
   ja: 押し込み量
@@ -477,6 +480,106 @@ keymap.sys.os_win:
 keymap.sys.os_mac:
   en: Mac mode
   ja: Mac モード
+
+socd.title:
+  en: SOCD
+  ja: SOCD
+socd.description:
+  en: Pairs act on the key codes the keys send, so they follow the keymap.
+  ja: ペアはキーが送るキーコードに対して働くため、キーマップの変更に従います。
+socd.loading:
+  en: Reading the SOCD settings…
+  ja: SOCD 設定を読み込んでいます…
+socd.load_failed:
+  en: Couldn't read the SOCD settings. Check the USB cable and try again.
+  ja: SOCD 設定を読み込めませんでした。USB ケーブルを確認して、もう一度お試しください。
+socd.retry:
+  en: Try again
+  ja: 再試行
+socd.switch:
+  en: SOCD switch
+  ja: SOCD スイッチ
+socd.switch.on:
+  en: "On"
+  ja: オン
+socd.switch.off:
+  en: "Off"
+  ja: オフ
+socd.add:
+  en: Add pair
+  ja: ペアを追加
+socd.count:
+  en: "%{count} of %{max}"
+  ja: "%{count} / %{max}"
+socd.undo:
+  en: Undo
+  ja: 元に戻す
+socd.no_pairs:
+  en: No pairs yet.
+  ja: ペアはまだありません。
+socd.column.pair:
+  en: Pair
+  ja: ペア
+socd.column.key_a:
+  en: Key A
+  ja: キー A
+socd.column.key_b:
+  en: Key B
+  ja: キー B
+socd.column.behavior:
+  en: When both are held
+  ja: 同時に押したとき
+socd.column.mode:
+  en: Applies
+  ja: 適用
+socd.column.state:
+  en: State
+  ja: 状態
+socd.no_key:
+  en: Choose a key
+  ja: キーを選択
+socd.key_a_of:
+  en: Key A of pair %{pair}
+  ja: ペア %{pair} のキー A
+socd.key_b_of:
+  en: Key B of pair %{pair}
+  ja: ペア %{pair} のキー B
+socd.behavior_of:
+  en: When both keys of pair %{pair} are held
+  ja: ペア %{pair} を同時に押したとき
+socd.mode_of:
+  en: When pair %{pair} is used
+  ja: ペア %{pair} を使う条件
+socd.behavior.last:
+  en: Last pressed wins
+  ja: 後に押したキーを優先
+socd.behavior.wins:
+  en: "%{key} wins"
+  ja: "%{key} を優先"
+socd.behavior.neutral:
+  en: Neither is sent
+  ja: どちらも送らない
+socd.mode.always:
+  en: Always
+  ja: 常に
+socd.mode.switch:
+  en: With the switch
+  ja: スイッチに従う
+socd.mode.off:
+  en: Never
+  ja: 使わない
+socd.state.active:
+  en: Active
+  ja: 有効
+socd.state.inactive:
+  en: Inactive
+  ja: 無効
+socd.remove:
+  en: Remove
+  ja: 削除
+socd.remove_pair:
+  en: Remove pair %{pair}
+  ja: ペア %{pair} を削除
 
 unit.mm:
   en: "%{value} mm"

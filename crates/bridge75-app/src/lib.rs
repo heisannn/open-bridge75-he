@@ -17,6 +17,7 @@ mod page;
 mod preferences;
 mod session;
 mod shell;
+mod socd;
 mod trigger;
 
 use gpui_kit::component::TitleBar;
@@ -66,11 +67,13 @@ pub fn run() {
             shell::init(cx);
             trigger::init(cx);
             keymap::init(cx);
+            socd::init(cx);
             init_quit(cx);
 
             let session = session::new(cx);
             let document = document::new(session.clone(), cx);
             let keymap = keymap::new(session.clone(), cx);
+            let socd = socd::new(session.clone(), cx);
             // Window geometry is a platform boundary, so it is given in pixels.
             let options = WindowOptions {
                 window_bounds: Some(WindowBounds::centered(size(px(1180.), px(800.)), cx)),
@@ -79,7 +82,7 @@ pub fn run() {
             };
             gpui_kit::open_window(options, cx, |window, cx| {
                 window.set_window_title(&rust_i18n::t!("app.title"));
-                cx.new(|cx| shell::Shell::new(session, document, keymap, window, cx))
+                cx.new(|cx| shell::Shell::new(session, document, keymap, socd, window, cx))
             })
             .expect("failed to open the main window");
 

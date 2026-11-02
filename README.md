@@ -37,9 +37,9 @@ See [docs/official-app.md](docs/official-app.md) for details.
 - [x] Live key travel
 - [x] English and Japanese UI, light and dark appearance
 - [x] Keymap (base and Fn layers): kept on this computer for each keyboard, since the keyboard cannot report it
+- [x] SOCD: pairs, the behavior when both keys are held, and the SOCD switch
 - [ ] Macros
 - [ ] Advanced keys (DKS, Mod-Tap, Toggle)
-- [ ] SOCD
 - [ ] Debounce, polling rate and sleep time
 - [ ] Calibration
 - [ ] Open and save TOML profiles

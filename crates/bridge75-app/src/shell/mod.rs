@@ -25,6 +25,7 @@ use crate::overview::OverviewPage;
 use crate::page;
 use crate::preferences::{Appearance, Preferences, PreferencesPage};
 use crate::session::{SearchState, Session, SessionState};
+use crate::socd::{SocdDocument, SocdPage};
 use crate::trigger::TriggerPage;
 pub use nav::Page;
 
@@ -34,6 +35,7 @@ actions!(
         ShowOverview,
         ShowTrigger,
         ShowKeymap,
+        ShowSocd,
         ShowMonitor,
         ShowPreferences
     ]
@@ -59,16 +61,18 @@ pub fn init(cx: &mut App) {
             KeyBinding::new("cmd-1", ShowOverview, Some(CONTEXT)),
             KeyBinding::new("cmd-2", ShowTrigger, Some(CONTEXT)),
             KeyBinding::new("cmd-3", ShowKeymap, Some(CONTEXT)),
-            KeyBinding::new("cmd-4", ShowMonitor, Some(CONTEXT)),
-            KeyBinding::new("cmd-5", ShowPreferences, Some(CONTEXT)),
+            KeyBinding::new("cmd-4", ShowSocd, Some(CONTEXT)),
+            KeyBinding::new("cmd-5", ShowMonitor, Some(CONTEXT)),
+            KeyBinding::new("cmd-6", ShowPreferences, Some(CONTEXT)),
         ]
     } else {
         [
             KeyBinding::new("ctrl-1", ShowOverview, Some(CONTEXT)),
             KeyBinding::new("ctrl-2", ShowTrigger, Some(CONTEXT)),
             KeyBinding::new("ctrl-3", ShowKeymap, Some(CONTEXT)),
-            KeyBinding::new("ctrl-4", ShowMonitor, Some(CONTEXT)),
-            KeyBinding::new("ctrl-5", ShowPreferences, Some(CONTEXT)),
+            KeyBinding::new("ctrl-4", ShowSocd, Some(CONTEXT)),
+            KeyBinding::new("ctrl-5", ShowMonitor, Some(CONTEXT)),
+            KeyBinding::new("ctrl-6", ShowPreferences, Some(CONTEXT)),
         ]
     };
     cx.bind_keys(bindings);
@@ -83,6 +87,7 @@ pub struct Shell {
     page: Page,
     trigger: Entity<TriggerPage>,
     keymap: Entity<KeymapPage>,
+    socd: Entity<SocdPage>,
     monitor: Entity<MonitorPage>,
     /// Keeps the navigation shortcuts working when nothing inside a page has focus.
     focus_handle: FocusHandle,
@@ -94,15 +99,20 @@ impl Shell {
         session: Entity<Session>,
         document: Entity<KeyboardDocument>,
         keymap: Entity<KeymapDocument>,
+        socd: Entity<SocdDocument>,
         window: &mut Window,
         cx: &mut Context<Self>,
     ) -> Self {
         let trigger = cx.new(|cx| TriggerPage::new(document.clone(), window, cx));
         let keymap = cx.new(|cx| KeymapPage::new(keymap, window, cx));
+        let socd_page = cx.new(|cx| SocdPage::new(socd.clone(), cx));
         let monitor = cx.new(|cx| MonitorPage::new(session.clone(), cx));
         let subscriptions = vec![
             cx.observe(&session, |_, _, cx| cx.notify()),
             cx.subscribe_in(&document, window, |_, _, event, window, cx| {
+                Self::notify_failure(event, window, cx)
+            }),
+            cx.subscribe_in(&socd, window, |_, _, event, window, cx| {
                 Self::notify_failure(event, window, cx)
             }),
             // A focused control that goes away (an editor whose selection was cleared, a board
@@ -121,6 +131,7 @@ impl Shell {
             page: Page::Overview,
             trigger,
             keymap,
+            socd: socd_page,
             monitor,
             focus_handle,
             _subscriptions: subscriptions,
@@ -176,6 +187,7 @@ impl Shell {
             Page::Keymap => self
                 .keymap
                 .update(cx, |keymap, cx| keymap.focus(window, cx)),
+            Page::Socd => self.socd.update(cx, |socd, cx| socd.open(window, cx)),
             _ => self.focus_handle.focus(window, cx),
         }
         cx.notify();
@@ -230,6 +242,7 @@ impl Shell {
             }
             Page::Trigger => self.trigger.clone().into_any_element(),
             Page::Keymap => self.keymap.clone().into_any_element(),
+            Page::Socd => self.socd.clone().into_any_element(),
             Page::Monitor => self.monitor.clone().into_any_element(),
             Page::Preferences => PreferencesPage.into_any_element(),
         };
@@ -271,6 +284,9 @@ impl Render for Shell {
             )
             .on_action(
                 cx.listener(|this, _: &ShowKeymap, window, cx| this.open(Page::Keymap, window, cx)),
+            )
+            .on_action(
+                cx.listener(|this, _: &ShowSocd, window, cx| this.open(Page::Socd, window, cx)),
             )
             .on_action(
                 cx.listener(|this, _: &ShowMonitor, window, cx| {
@@ -337,6 +353,7 @@ mod shortcut_tests {
             init(cx);
             crate::trigger::init(cx);
             crate::keymap::init(cx);
+            crate::socd::init(cx);
             cx.set_global(Preferences::default());
             let options = WindowOptions {
                 window_bounds: Some(WindowBounds::Windowed(Bounds {
@@ -356,8 +373,18 @@ mod shortcut_tests {
                     )
                 });
                 keymap_document = Some(keymap.clone());
+                let socd = cx.new(|cx| {
+                    SocdDocument::for_test(
+                        Default::default(),
+                        bridge75_core::socd::SocdStatus {
+                            global: false,
+                            enabled_mask: 0,
+                        },
+                        cx,
+                    )
+                });
                 let session = cx.new(|_| Session::detached());
-                cx.new(|cx| Shell::new(session, document, keymap, window, cx))
+                cx.new(|cx| Shell::new(session, document, keymap, socd, window, cx))
             })
             .unwrap()
         });
@@ -381,8 +408,9 @@ mod shortcut_tests {
             for (key, page) in [
                 ("2", Page::Trigger),
                 ("3", Page::Keymap),
-                ("4", Page::Monitor),
-                ("5", Page::Preferences),
+                ("4", Page::Socd),
+                ("5", Page::Monitor),
+                ("6", Page::Preferences),
                 ("1", Page::Overview),
             ] {
                 window.press(&format!("{modifier}-{key}"), cx);

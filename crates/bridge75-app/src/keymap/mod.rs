@@ -4,7 +4,7 @@
 //! opens its assignment menu and Delete restores its default. Clicking a key selects it and
 //! opens the menu beside it.
 
-mod assignment;
+pub(crate) mod assignment;
 mod document;
 mod layers;
 mod store;
