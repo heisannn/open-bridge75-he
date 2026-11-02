@@ -1,8 +1,22 @@
 # open-bridge75-he
 
-An unofficial configurator for the Bridge75 HE magnetic keyboard (FW internal name 75ALHE). It provides a command-line tool and an early desktop app (GPUI Kit).
+English | [日本語](README.ja.md)
 
-The CLI is tested on the real keyboard (FW V1.13.10, Windows 11). The desktop app is in progress.
+An unofficial configurator for the Bridge75 HE magnetic keyboard. It provides a command-line tool and an early desktop app (GPUI Kit).
+
+The official configurator (Short Cut HE Config) stops working on 2030-01-01, when its SDK starts refusing every call. It also leaves out some features of the keyboard:
+
+- SOCD
+- Different press and release sensitivity for Rapid Trigger without an exit point
+- Raw sensor values
+
+See [docs/official-app.md](docs/official-app.md) for details.
+
+![Trigger page](docs/images/app-trigger.png)
+
+![Keymap page](docs/images/app-keymap-menu.png)
+
+![Trigger page in the light appearance](docs/images/app-trigger-light.png)
 
 ## Features
 
