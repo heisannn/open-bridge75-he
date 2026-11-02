@@ -107,7 +107,7 @@ impl KeyboardDocument {
         let subscription = cx.subscribe(&session, |this, _, event, cx| match event {
             SessionEvent::Connected(connection) => this.load(*connection, cx),
             SessionEvent::Disconnected => this.clear(cx),
-            SessionEvent::Travel(_) => {}
+            SessionEvent::Travel(_) | SessionEvent::Calibration(_) => {}
         });
         let mut document = KeyboardDocument {
             session: session.clone(),

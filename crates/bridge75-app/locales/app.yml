@@ -24,6 +24,9 @@ nav.socd:
 nav.monitor:
   en: Key travel
   ja: 押し込み量
+nav.calibration:
+  en: Calibration
+  ja: キャリブレーション
 nav.preferences:
   en: Settings
   ja: 設定
@@ -640,6 +643,82 @@ monitor.not_connected:
 monitor.start_failed:
   en: Couldn't start showing key travel. Open this page again to retry.
   ja: 押し込み量の表示を開始できませんでした。このページを開き直すと、もう一度試します。
+
+calibration.title:
+  en: Calibration
+  ja: キャリブレーション
+calibration.not_connected:
+  en: Connect the keyboard to calibrate it.
+  ja: キャリブレーションするには、キーボードを接続してください。
+calibration.board:
+  en: Keys
+  ja: キー
+calibration.start_all:
+  en: Calibrate all keys
+  ja: すべてのキーをキャリブレーション
+calibration.start_key:
+  en: Calibrate %{key}
+  ja: "%{key} をキャリブレーション"
+calibration.start_selected:
+  en: Calibrate selected key
+  ja: 選択したキーをキャリブレーション
+calibration.countdown:
+  en: Take your hands off the keys. Starting in %{seconds} s.
+  ja: キーから手を離してください。%{seconds} 秒後に開始します。
+calibration.cancel:
+  en: Cancel
+  ja: キャンセル
+calibration.all.running:
+  en: Press each key all the way down, one at a time, and release it.
+  ja: キーを 1 つずつ底まで押して、離してください。
+calibration.progress:
+  en: "%{done} of %{total} keys"
+  ja: "%{done} / %{total} キー"
+calibration.stop:
+  en: Stop
+  ja: 中止
+calibration.stopping:
+  en: Stopping…
+  ja: 中止しています…
+calibration.key.running:
+  en: Press %{key} all the way down, hold it there for about 1 second, then release it.
+  ja: "%{key} を底まで押し、約 1 秒そのままにしてから離してください。"
+calibration.all.done:
+  en: All keys are calibrated.
+  ja: すべてのキーをキャリブレーションしました。
+calibration.all.partial:
+  en: "%{done} of %{total} keys are calibrated."
+  ja: "%{total} キー中 %{done} キーをキャリブレーションしました。"
+calibration.all.stopped:
+  en: Stopped. %{done} of %{total} keys are calibrated.
+  ja: 中止しました。%{total} キー中 %{done} キーをキャリブレーションしました。
+calibration.key.done:
+  en: "%{key} is calibrated."
+  ja: "%{key} をキャリブレーションしました。"
+calibration.key.timed_out:
+  en: "%{key} wasn't calibrated."
+  ja: "%{key} をキャリブレーションできませんでした。"
+calibration.key.timed_out.detail:
+  en: Press it all the way down within about 10 seconds and hold it there for about 1 second.
+  ja: 約 10 秒以内に底まで押し、約 1 秒そのままにしてください。
+calibration.no_answer:
+  en: The keyboard didn't report the end of calibration. Check the USB cable and try again.
+  ja: キーボードからキャリブレーションの終了が届きませんでした。USB ケーブルを確認して、もう一度お試しください。
+calibration.unexpected:
+  en: The keyboard reported a calibration state this app doesn't know. Try again.
+  ja: キーボードが、このアプリの知らないキャリブレーションの状態を報告しました。もう一度お試しください。
+calibration.unexpected.detail:
+  en: "State: %{state}"
+  ja: "状態: %{state}"
+calibration.start_failed:
+  en: Couldn't start calibration. Check the USB cable and try again.
+  ja: キャリブレーションを開始できませんでした。USB ケーブルを確認して、もう一度お試しください。
+calibration.disconnected:
+  en: The keyboard was disconnected during calibration. Connect it and calibrate again.
+  ja: キャリブレーション中にキーボードが切断されました。接続して、もう一度キャリブレーションしてください。
+calibration.key_calibrated:
+  en: "%{key}, calibrated"
+  ja: "%{key}、キャリブレーション済み"
 
 preferences.title:
   en: Settings

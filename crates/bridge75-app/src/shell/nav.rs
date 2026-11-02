@@ -10,16 +10,18 @@ pub enum Page {
     Keymap,
     Socd,
     Monitor,
+    Calibration,
     Preferences,
 }
 
 impl Page {
-    pub const ALL: [Page; 6] = [
+    pub const ALL: [Page; 7] = [
         Page::Overview,
         Page::Trigger,
         Page::Keymap,
         Page::Socd,
         Page::Monitor,
+        Page::Calibration,
         Page::Preferences,
     ];
 
@@ -35,6 +37,7 @@ impl Page {
             Page::Keymap => t!("nav.keymap"),
             Page::Socd => t!("nav.socd"),
             Page::Monitor => t!("nav.monitor"),
+            Page::Calibration => t!("nav.calibration"),
             Page::Preferences => t!("nav.preferences"),
         }
         .into()
@@ -47,6 +50,7 @@ impl Page {
             Page::Keymap => IconName::Command,
             Page::Socd => IconName::ArrowLeftRight,
             Page::Monitor => IconName::Activity,
+            Page::Calibration => IconName::Crosshair,
             Page::Preferences => IconName::Settings,
         }
     }

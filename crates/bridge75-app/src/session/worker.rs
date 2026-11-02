@@ -2,8 +2,9 @@
 //!
 //! [`Device`] requests drain the receive queue before they wait, so only one thread may talk to
 //! the keyboard. This thread searches for the keyboard while none is open, runs jobs one at a
-//! time while it is open, and forwards live travel reports between jobs. Reports that arrive
-//! while a job waits for its response are dropped by the device layer.
+//! time while it is open, and forwards live travel reports, calibration reports and heartbeat
+//! changes between jobs. Reports that arrive while a job waits for its response are dropped by
+//! the device layer.
 
 use std::ffi::CString;
 use std::sync::Arc;
@@ -11,9 +12,9 @@ use std::sync::mpsc::{self, RecvTimeoutError};
 use std::thread::JoinHandle;
 use std::time::{Duration, Instant};
 
-use bridge75_core::he::Travel;
+use bridge75_core::he::{AllCalibration, KeyCalibration, Travel};
 use bridge75_core::info::{DeviceInfo, Heartbeat};
-use bridge75_core::matrix::KeyPos;
+use bridge75_core::matrix::{KeyBitmap, KeyPos};
 use bridge75_core::request;
 use bridge75_core::response::{HeResponse, Response};
 use bridge75_device::{Device, DeviceEntry, Error};
@@ -39,6 +40,18 @@ pub struct KeyboardInfo {
     pub heartbeat: Heartbeat,
 }
 
+/// A calibration report the keyboard sends on its own once calibration has started.
+#[derive(Clone, Copy, PartialEq, Eq, Debug)]
+pub enum CalibrationReport {
+    /// Calibration of one key (0x21 sub7).
+    Key(KeyCalibration),
+    /// Calibration of all keys (0x21 sub8), with the keys calibrated so far in this run.
+    All {
+        state: AllCalibration,
+        calibrated: KeyBitmap,
+    },
+}
+
 /// Why no keyboard is connected.
 #[derive(Clone, PartialEq, Eq, Debug)]
 pub enum SearchState {
@@ -61,6 +74,10 @@ pub enum Event {
     Disconnected,
     /// Latest travel per key since the previous report.
     Travel(Vec<(KeyPos, Travel)>),
+    Calibration(CalibrationReport),
+    /// A heartbeat response that differs from the previous one, such as the calibrated flag
+    /// changing after calibration.
+    Heartbeat(Heartbeat),
 }
 
 /// A unit of work for the open keyboard. It receives `None` when its connection is gone.
@@ -132,11 +149,13 @@ fn run(commands: &mpsc::Receiver<Command>, events: &Sender<Event>) {
         };
         next_id += 1;
         let connection = ConnectionId(next_id);
+        let heartbeat = info.heartbeat;
         let info = Arc::new(info);
         if emit(events, Event::Connected { connection, info }).is_err() {
             return;
         }
-        match serve(&device, connection, commands, events) {
+        let mut state = Served::new(heartbeat);
+        match serve(&device, connection, commands, events, &mut state) {
             Ok(()) => {
                 drop(device);
                 if emit(events, Event::Disconnected).is_err() {
@@ -146,6 +165,10 @@ fn run(commands: &mpsc::Receiver<Command>, events: &Sender<Event>) {
             Err(Quit) => {
                 // Monitored keys are cleared by the FW too once heartbeats stop; this is quicker.
                 let _ = device.send(request::he_clear_monitor());
+                // A run left going would keep taking key presses as calibration.
+                if state.calibrating_all {
+                    let _ = device.abort_calibrate_all();
+                }
                 return;
             }
         }
@@ -255,12 +278,51 @@ fn open(rejected: &mut Rejected) -> Result<(Device, KeyboardInfo), SearchState> 
     ))
 }
 
+/// What [`serve`] keeps track of across jobs.
+struct Served {
+    /// The latest heartbeat, so only changes are forwarded.
+    heartbeat: Heartbeat,
+    /// Whether the keyboard last reported a calibration of all keys as running.
+    calibrating_all: bool,
+}
+
+impl Served {
+    fn new(heartbeat: Heartbeat) -> Self {
+        Served {
+            heartbeat,
+            calibrating_all: false,
+        }
+    }
+
+    /// The event to forward for `response`, if any. Travel reports are batched separately.
+    fn event_for(&mut self, response: Response) -> Option<Event> {
+        match response {
+            Response::He(HeResponse::CalibrateKey(state)) => {
+                Some(Event::Calibration(CalibrationReport::Key(state)))
+            }
+            Response::He(HeResponse::CalibrateAll { state, calibrated }) => {
+                self.calibrating_all = state == AllCalibration::Running;
+                Some(Event::Calibration(CalibrationReport::All {
+                    state,
+                    calibrated,
+                }))
+            }
+            Response::Heartbeat(heartbeat) if heartbeat != self.heartbeat => {
+                self.heartbeat = heartbeat;
+                Some(Event::Heartbeat(heartbeat))
+            }
+            _ => None,
+        }
+    }
+}
+
 /// Runs jobs and forwards notifications until the keyboard goes away.
 fn serve(
     device: &Device,
     connection: ConnectionId,
     commands: &mpsc::Receiver<Command>,
     events: &Sender<Event>,
+    state: &mut Served,
 ) -> Result<(), Quit> {
     let mut travel = TravelBatch::default();
     loop {
@@ -274,7 +336,11 @@ fn serve(
                 Ok(Some(Response::He(HeResponse::Travel { pos, travel: t }))) => {
                     travel.push(pos, t)
                 }
-                Ok(Some(_)) => {}
+                Ok(Some(response)) => {
+                    if let Some(event) = state.event_for(response) {
+                        emit(events, event)?;
+                    }
+                }
                 Ok(None) => break,
                 Err(_) => return Ok(()),
             }
@@ -389,6 +455,49 @@ mod tests {
             choose(&[entry("boot", true)], &mut rejected),
             Choice::Wait(SearchState::Bootloader)
         );
+    }
+
+    #[test]
+    fn only_heartbeat_changes_are_forwarded() {
+        let calibrated = Heartbeat {
+            win_lock: false,
+            calibrated: true,
+        };
+        let mut state = Served::new(calibrated);
+        assert!(state.event_for(Response::Heartbeat(calibrated)).is_none());
+        let cleared = Heartbeat {
+            calibrated: false,
+            ..calibrated
+        };
+        assert!(matches!(
+            state.event_for(Response::Heartbeat(cleared)),
+            Some(Event::Heartbeat(h)) if h == cleared
+        ));
+        assert!(state.event_for(Response::Heartbeat(cleared)).is_none());
+    }
+
+    #[test]
+    fn a_running_calibration_of_all_keys_is_tracked() {
+        let mut state = Served::new(Heartbeat {
+            win_lock: false,
+            calibrated: false,
+        });
+        let report = |state| {
+            Response::He(HeResponse::CalibrateAll {
+                state,
+                calibrated: KeyBitmap::EMPTY,
+            })
+        };
+        assert!(state.event_for(report(AllCalibration::Running)).is_some());
+        assert!(state.calibrating_all);
+        assert!(state.event_for(report(AllCalibration::Finished)).is_some());
+        assert!(!state.calibrating_all);
+        assert!(matches!(
+            state.event_for(Response::He(HeResponse::CalibrateKey(KeyCalibration::Done))),
+            Some(Event::Calibration(CalibrationReport::Key(
+                KeyCalibration::Done
+            )))
+        ));
     }
 
     #[test]

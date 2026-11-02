@@ -10,6 +10,7 @@ gpui_kit::assets::icon_assets!(
         Activity,
         ArrowLeftRight,
         Command,
+        Crosshair,
         Gauge,
         Keyboard,
         Lock,

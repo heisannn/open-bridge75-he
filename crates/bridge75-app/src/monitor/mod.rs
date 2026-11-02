@@ -42,6 +42,7 @@ impl MonitorPage {
                     this.start(cx);
                 }
             }
+            SessionEvent::Calibration(_) => {}
             SessionEvent::Disconnected => {
                 this.travel.clear();
                 this.failure = None;

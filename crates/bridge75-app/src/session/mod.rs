@@ -14,8 +14,8 @@ use bridge75_device::Device;
 use gpui_kit::base::async_util::unbounded;
 use gpui_kit::{App, AppContext as _, Context, Entity, EventEmitter, Task};
 
+pub use worker::{CalibrationReport, ConnectionId, KeyboardInfo, SearchState};
 use worker::{Command, Event, Worker};
-pub use worker::{ConnectionId, KeyboardInfo, SearchState};
 
 #[derive(Clone, Debug)]
 pub enum SessionState {
@@ -36,6 +36,8 @@ pub enum SessionEvent {
     Disconnected,
     /// Latest travel of the keys that moved. Only monitored keys report travel.
     Travel(Arc<[(KeyPos, Travel)]>),
+    /// Progress or the end of a calibration started on the current connection.
+    Calibration(CalibrationReport),
 }
 
 #[derive(Debug)]
@@ -102,6 +104,34 @@ impl Session {
         }
     }
 
+    /// A session that looks connected but has no connection thread: every job fails with
+    /// [`RequestError::NotConnected`].
+    #[cfg(test)]
+    pub fn connected_for_test() -> Self {
+        use bridge75_core::info::{BuildTime, DeviceInfo, FirmwareId, Heartbeat};
+        let info = KeyboardInfo {
+            device: DeviceInfo {
+                firmware: FirmwareId::parse("M484,22,KB,OW,75ALHE,V1.13.10").unwrap(),
+                build: BuildTime {
+                    date: "Nov 19 2024".into(),
+                    time: "10:36:50".into(),
+                },
+            },
+            serial: None,
+            heartbeat: Heartbeat {
+                win_lock: false,
+                calibrated: true,
+            },
+        };
+        Session {
+            state: SessionState::Connected {
+                connection: ConnectionId::for_test(1),
+                info: Arc::new(info),
+            },
+            ..Session::detached()
+        }
+    }
+
     pub fn state(&self) -> &SessionState {
         &self.state
     }
@@ -130,6 +160,13 @@ impl Session {
                 cx.notify();
             }
             Event::Travel(batch) => cx.emit(SessionEvent::Travel(batch.into())),
+            Event::Calibration(report) => cx.emit(SessionEvent::Calibration(report)),
+            Event::Heartbeat(heartbeat) => {
+                if let SessionState::Connected { info, .. } = &mut self.state {
+                    Arc::make_mut(info).heartbeat = heartbeat;
+                    cx.notify();
+                }
+            }
         }
     }
 

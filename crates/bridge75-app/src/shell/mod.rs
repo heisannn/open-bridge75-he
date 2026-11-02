@@ -17,6 +17,7 @@ use gpui_kit::{
 };
 use rust_i18n::t;
 
+use crate::calibration::CalibrationPage;
 use crate::document::{DocumentEvent, KeyboardDocument};
 use crate::general::{GeneralDocument, GeneralSection};
 use crate::keyboard;
@@ -38,6 +39,7 @@ actions!(
         ShowKeymap,
         ShowSocd,
         ShowMonitor,
+        ShowCalibration,
         ShowPreferences
     ]
 );
@@ -64,7 +66,8 @@ pub fn init(cx: &mut App) {
             KeyBinding::new("cmd-3", ShowKeymap, Some(CONTEXT)),
             KeyBinding::new("cmd-4", ShowSocd, Some(CONTEXT)),
             KeyBinding::new("cmd-5", ShowMonitor, Some(CONTEXT)),
-            KeyBinding::new("cmd-6", ShowPreferences, Some(CONTEXT)),
+            KeyBinding::new("cmd-6", ShowCalibration, Some(CONTEXT)),
+            KeyBinding::new("cmd-7", ShowPreferences, Some(CONTEXT)),
         ]
     } else {
         [
@@ -73,7 +76,8 @@ pub fn init(cx: &mut App) {
             KeyBinding::new("ctrl-3", ShowKeymap, Some(CONTEXT)),
             KeyBinding::new("ctrl-4", ShowSocd, Some(CONTEXT)),
             KeyBinding::new("ctrl-5", ShowMonitor, Some(CONTEXT)),
-            KeyBinding::new("ctrl-6", ShowPreferences, Some(CONTEXT)),
+            KeyBinding::new("ctrl-6", ShowCalibration, Some(CONTEXT)),
+            KeyBinding::new("ctrl-7", ShowPreferences, Some(CONTEXT)),
         ]
     };
     cx.bind_keys(bindings);
@@ -90,6 +94,7 @@ pub struct Shell {
     keymap: Entity<KeymapPage>,
     socd: Entity<SocdPage>,
     monitor: Entity<MonitorPage>,
+    calibration: Entity<CalibrationPage>,
     general: Entity<GeneralSection>,
     /// Keeps the navigation shortcuts working when nothing inside a page has focus.
     focus_handle: FocusHandle,
@@ -110,9 +115,12 @@ impl Shell {
         let keymap = cx.new(|cx| KeymapPage::new(keymap, window, cx));
         let socd_page = cx.new(|cx| SocdPage::new(socd.clone(), cx));
         let monitor = cx.new(|cx| MonitorPage::new(session.clone(), cx));
+        let calibration = cx.new(|cx| CalibrationPage::new(session.clone(), cx));
         let general_section = cx.new(|cx| GeneralSection::new(general.clone(), window, cx));
         let subscriptions = vec![
             cx.observe(&session, |_, _, cx| cx.notify()),
+            // The navigation is locked while a calibration counts down or runs.
+            cx.observe(&calibration, |_, _, cx| cx.notify()),
             cx.subscribe_in(&document, window, |_, _, event, window, cx| {
                 Self::notify_failure(event, window, cx)
             }),
@@ -140,6 +148,7 @@ impl Shell {
             keymap,
             socd: socd_page,
             monitor,
+            calibration,
             general: general_section,
             focus_handle,
             _subscriptions: subscriptions,
@@ -179,8 +188,14 @@ impl Shell {
         window.push_notification(notification, cx);
     }
 
+    /// Whether pages other than the current one can be opened. A calibration keeps its page
+    /// open: other pages talk to the keyboard, and the end of the calibration could be missed.
+    fn is_navigation_locked(&self, cx: &App) -> bool {
+        self.calibration.read(cx).is_busy()
+    }
+
     fn open(&mut self, page: Page, window: &mut Window, cx: &mut Context<Self>) {
-        if self.page == page {
+        if self.page == page || self.is_navigation_locked(cx) {
             return;
         }
         self.page = page;
@@ -196,6 +211,9 @@ impl Shell {
                 .keymap
                 .update(cx, |keymap, cx| keymap.focus(window, cx)),
             Page::Socd => self.socd.update(cx, |socd, cx| socd.open(window, cx)),
+            Page::Calibration => self
+                .calibration
+                .update(cx, |calibration, cx| calibration.focus(window, cx)),
             _ => self.focus_handle.focus(window, cx),
         }
         cx.notify();
@@ -231,6 +249,7 @@ impl Shell {
     }
 
     fn render_sidebar(&self, collapsed: bool, cx: &mut Context<Self>) -> impl IntoElement {
+        let locked = self.is_navigation_locked(cx);
         Sidebar::new("navigation")
             .collapsible(SidebarCollapsible::Icon)
             .collapsed(collapsed)
@@ -239,6 +258,7 @@ impl Shell {
                 SidebarMenuItem::new(page.label())
                     .icon(page.icon())
                     .active(page == self.page)
+                    .disable(locked && page != self.page)
                     .on_click(cx.listener(move |this, _, window, cx| this.open(page, window, cx)))
             })))
     }
@@ -252,6 +272,7 @@ impl Shell {
             Page::Keymap => self.keymap.clone().into_any_element(),
             Page::Socd => self.socd.clone().into_any_element(),
             Page::Monitor => self.monitor.clone().into_any_element(),
+            Page::Calibration => self.calibration.clone().into_any_element(),
             Page::Preferences => PreferencesPage.into_any_element(),
         };
         // Each page has its own scroll position.
@@ -301,6 +322,9 @@ impl Render for Shell {
                     this.open(Page::Monitor, window, cx)
                 }),
             )
+            .on_action(cx.listener(|this, _: &ShowCalibration, window, cx| {
+                this.open(Page::Calibration, window, cx)
+            }))
             .on_action(cx.listener(|this, _: &ShowPreferences, window, cx| {
                 this.open(Page::Preferences, window, cx)
             }))
@@ -362,6 +386,7 @@ mod shortcut_tests {
             crate::trigger::init(cx);
             crate::keymap::init(cx);
             crate::socd::init(cx);
+            crate::calibration::init(cx);
             cx.set_global(Preferences::default());
             let options = WindowOptions {
                 window_bounds: Some(WindowBounds::Windowed(Bounds {
@@ -421,12 +446,29 @@ mod shortcut_tests {
                 ("3", Page::Keymap),
                 ("4", Page::Socd),
                 ("5", Page::Monitor),
-                ("6", Page::Preferences),
+                ("6", Page::Calibration),
+                ("7", Page::Preferences),
                 ("1", Page::Overview),
             ] {
                 window.press(&format!("{modifier}-{key}"), cx);
                 assert_eq!(shell.read(cx).page, page);
             }
+        })
+        .unwrap();
+    }
+
+    #[gpui_kit::test]
+    fn a_calibration_keeps_its_page_open(cx: &mut TestAppContext) {
+        let (window, shell, _) = open(cx);
+        let modifier = modifier(cx);
+        cx.update_window(window, |_, window, cx| {
+            window.render_frame(cx);
+            window.press(&format!("{modifier}-6"), cx);
+            let calibration = shell.read(cx).calibration.clone();
+            calibration.update(cx, |calibration, cx| calibration.begin_for_test(cx));
+            window.render_frame(cx);
+            window.press(&format!("{modifier}-1"), cx);
+            assert_eq!(shell.read(cx).page, Page::Calibration);
         })
         .unwrap();
     }

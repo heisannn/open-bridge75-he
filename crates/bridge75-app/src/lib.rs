@@ -8,6 +8,7 @@
 rust_i18n::i18n!("locales", fallback = "en");
 
 mod assets;
+mod calibration;
 mod document;
 mod general;
 mod keyboard;
@@ -69,6 +70,7 @@ pub fn run() {
             trigger::init(cx);
             keymap::init(cx);
             socd::init(cx);
+            calibration::init(cx);
             init_quit(cx);
 
             let session = session::new(cx);

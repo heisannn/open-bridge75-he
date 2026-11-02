@@ -25,6 +25,7 @@ See [docs/official-app.md](docs/official-app.md) for details.
 - [x] Keyboard info: FW version, build date, serial number, calibration status
 - [x] Trigger settings per key: actuation point, release point, Rapid Trigger sensitivity (show, set, reset)
 - [x] Debounce, polling rate and sleep time
+- [x] Calibration of all keys, or of one key picked on the board, with a countdown to take your hands off the keys
 - [x] Calibration of one key or all keys
 - [x] Live key travel, and raw sensor values with CSV recording
 - [x] SOCD pairs (shown here, written through a profile)
@@ -41,7 +42,6 @@ See [docs/official-app.md](docs/official-app.md) for details.
 - [x] Debounce, polling rate and sleep time
 - [ ] Macros
 - [ ] Advanced keys (DKS, Mod-Tap, Toggle)
-- [ ] Calibration
 - [ ] Open and save TOML profiles
 - [ ] Remember the macros and advanced keys of each keyboard (the keyboard cannot report them)
 - [ ] Import settings from the official configurator
