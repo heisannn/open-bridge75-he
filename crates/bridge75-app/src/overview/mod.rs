@@ -104,10 +104,7 @@ impl RenderOnce for OverviewPage {
             .w_full()
             .p(page::INSET)
             .gap_6()
-            .child(PageHeader::new(
-                t!("overview.title"),
-                t!("overview.description"),
-            ))
+            .child(PageHeader::new(t!("overview.title")))
             .child(body)
     }
 }

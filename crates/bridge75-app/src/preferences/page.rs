@@ -69,10 +69,7 @@ impl RenderOnce for PreferencesPage {
             .w_full()
             .p(page::INSET)
             .gap_6()
-            .child(PageHeader::new(
-                t!("preferences.title"),
-                t!("preferences.description"),
-            ))
+            .child(PageHeader::new(t!("preferences.title")))
             .child(Field::new(
                 t!("preferences.language"),
                 RadioGroup::vertical("language")

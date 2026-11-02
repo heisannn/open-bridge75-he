@@ -41,9 +41,6 @@ status.connected:
 overview.title:
   en: Keyboard
   ja: キーボード
-overview.description:
-  en: What the connected keyboard reports about itself.
-  ja: 接続されたキーボードから読み取った情報です。
 overview.searching:
   en: Connect the Bridge75 HE with a USB cable.
   ja: Bridge75 HE を USB ケーブルで接続してください。
@@ -97,15 +94,9 @@ keyboard.not_connected:
 trigger.title:
   en: Trigger
   ja: トリガー
-trigger.description:
-  en: Choose where each key actuates. Click a key to select it; Ctrl+click adds or removes keys.
-  ja: キーが反応する位置を設定します。キーをクリックして選択し、Ctrl+クリックで選択に追加したり、選択から外したりできます。
 trigger.board:
   en: Keys
   ja: キー
-trigger.legend.actuation:
-  en: Numbers show the actuation point in mm.
-  ja: 数字は作動位置（mm）です。
 trigger.loading:
   en: Reading the trigger settings…
   ja: トリガー設定を読み込んでいます…
@@ -130,9 +121,6 @@ trigger.selected_many:
 trigger.undo:
   en: Undo
   ja: 元に戻す
-trigger.undo_tooltip:
-  en: Undo the last change
-  ja: 直前の変更を元に戻す
 trigger.no_selection:
   en: Select keys to change their settings.
   ja: 設定を変更するキーを選択してください。
@@ -198,9 +186,6 @@ trigger.increase_field:
 keymap.title:
   en: Keymap
   ja: キーマップ
-keymap.description:
-  en: Choose what each key sends. The keyboard can't report its keymap, so the app shows the keymap it last wrote to this keyboard.
-  ja: 各キーが送る内容を設定します。キーボードからはキーマップを読み取れないため、このアプリが最後にこのキーボードへ書き込んだキーマップを表示します。
 keymap.not_written:
   en: This app hasn't written a keymap to this keyboard yet, so the default keymap is shown. Changing a key writes the whole keymap and replaces assignments made with other apps.
   ja: このアプリはまだこのキーボードにキーマップを書き込んでいないため、既定のキーマップを表示しています。キーを変更するとキーマップ全体を書き込むので、ほかのアプリで設定した割り当ては置き換わります。
@@ -222,9 +207,6 @@ keymap.layer.base:
 keymap.layer.fn:
   en: Fn layer
   ja: Fn レイヤー
-keymap.legend.changed:
-  en: Changed keys show what they send below the key name.
-  ja: 変更したキーには、キー名の下に割り当てを表示します。
 keymap.fixed:
   en: Fixed by the keyboard
   ja: キーボードで固定
@@ -237,9 +219,6 @@ keymap.no_selection:
 keymap.undo:
   en: Undo
   ja: 元に戻す
-keymap.undo_tooltip:
-  en: Undo the last change
-  ja: 直前の変更を元に戻す
 keymap.assignment_of:
   en: What %{key} sends
   ja: "%{key} の割り当て"
@@ -507,8 +486,8 @@ monitor.title:
   en: Key travel
   ja: 押し込み量
 monitor.description:
-  en: Shows how far each key is pressed. When several keys move at the same moment, the keyboard reports only one of them.
-  ja: 各キーの押し込み量を表示します。複数のキーが同時に動いたときは、キーボードがそのうち 1 つだけを報告します。
+  en: When several keys move at the same moment, the keyboard reports only one of them.
+  ja: 複数のキーが同時に動いたときは、キーボードがそのうち 1 つだけを報告します。
 monitor.not_connected:
   en: Connect the keyboard to see key travel.
   ja: 押し込み量を表示するには、キーボードを接続してください。
@@ -519,9 +498,6 @@ monitor.start_failed:
 preferences.title:
   en: Settings
   ja: 設定
-preferences.description:
-  en: Settings of this app. They are kept on this computer, not on the keyboard.
-  ja: このアプリの設定です。キーボードではなく、このコンピューターに保存されます。
 preferences.language:
   en: Language
   ja: 言語

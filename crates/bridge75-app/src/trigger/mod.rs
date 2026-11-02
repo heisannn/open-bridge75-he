@@ -18,7 +18,7 @@ use gpui_kit::component::{
 };
 use gpui_kit::prelude::FluentBuilder as _;
 use gpui_kit::{
-    AnyElement, App, AppContext as _, ClickEvent, Context, Entity, FocusHandle, FontWeight,
+    AnyElement, App, AppContext as _, ClickEvent, Context, Entity, FocusHandle, FontWeight, Hsla,
     InteractiveElement as _, IntoElement, KeyBinding, ParentElement as _, Render, Role,
     SharedString, StatefulInteractiveElement as _, Styled as _, Subscription, Window, actions, div,
 };
@@ -122,6 +122,15 @@ fn mode_mark(mode: TriggerMode) -> SharedString {
         TriggerMode::RapidSplit => t!("trigger.mark.rapid_split"),
     }
     .into()
+}
+
+/// Color of a mode's mark, so Rapid Trigger keys stand out from normal ones at a glance.
+fn mode_color(mode: TriggerMode, cx: &App) -> Hsla {
+    let theme = cx.theme();
+    match mode {
+        TriggerMode::Normal | TriggerMode::Split => theme.muted_foreground,
+        TriggerMode::Rapid | TriggerMode::RapidSplit => theme.blue,
+    }
 }
 
 fn mm(travel: Travel) -> SharedString {
@@ -357,15 +366,13 @@ impl TriggerPage {
                     .when_some(config, |this, config| {
                         this.child(
                             h_flex()
-                                .gap_0p5()
-                                .child(div().text_sm().child(config.actuation.to_string()))
-                                // A fixed slot, so the number does not move with the mode.
+                                .gap_1()
+                                .text_xs()
+                                .child(config.actuation.to_string())
                                 .child(
                                     div()
-                                        .w_4()
-                                        .flex_none()
-                                        .text_xs()
-                                        .text_color(muted)
+                                        .font_weight(FontWeight::SEMIBOLD)
+                                        .text_color(mode_color(config.mode, cx))
                                         .child(mode_mark(config.mode)),
                                 ),
                         )
@@ -423,13 +430,13 @@ impl TriggerPage {
             .gap_y_1()
             .text_xs()
             .text_color(cx.theme().muted_foreground)
-            .child(t!("trigger.legend.actuation"))
             .children(TriggerMode::ALL.map(|mode| {
                 h_flex()
                     .gap_1()
                     .child(
                         div()
                             .font_weight(FontWeight::SEMIBOLD)
+                            .text_color(mode_color(mode, cx))
                             .child(mode_mark(mode)),
                     )
                     .child(mode_label(mode))
@@ -482,7 +489,7 @@ impl TriggerPage {
                     .small()
                     .icon(IconName::Undo2)
                     .label(t!("trigger.undo"))
-                    .tooltip_with_action(t!("trigger.undo_tooltip"), &Undo, Some(CONTEXT))
+                    .tooltip_with_action(t!("trigger.undo"), &Undo, Some(CONTEXT))
                     .disabled(!has_undo)
                     .on_click(cx.listener(|this, _, window, cx| this.undo(&Undo, window, cx))),
             )
@@ -644,10 +651,7 @@ impl Render for TriggerPage {
                     .flex_none()
                     .p(page::INSET)
                     .gap_6()
-                    .child(PageHeader::new(
-                        t!("trigger.title"),
-                        t!("trigger.description"),
-                    ))
+                    .child(PageHeader::new(t!("trigger.title")))
                     .children(status)
                     .child(
                         v_flex()

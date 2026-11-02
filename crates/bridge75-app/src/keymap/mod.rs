@@ -513,30 +513,23 @@ impl KeymapPage {
                     .small()
                     .icon(IconName::Undo2)
                     .label(t!("keymap.undo"))
-                    .tooltip_with_action(t!("keymap.undo_tooltip"), &Undo, Some(CONTEXT))
+                    .tooltip_with_action(t!("keymap.undo"), &Undo, Some(CONTEXT))
                     .disabled(!has_undo)
                     .on_click(cx.listener(|this, _, window, cx| this.undo(&Undo, window, cx))),
             )
     }
 
-    fn render_legend(&self, cx: &mut Context<Self>) -> impl IntoElement {
-        let muted = cx.theme().muted_foreground;
-        h_flex()
-            .w(keyboard::WIDTH)
-            .flex_wrap()
-            .gap_x_4()
-            .gap_y_1()
-            .text_xs()
-            .text_color(muted)
-            .child(t!("keymap.legend.changed"))
-            .when(self.layer == Layer::Fn, |this| {
-                this.child(
-                    h_flex()
-                        .gap_1()
-                        .child(Icon::new(AppIconName::Lock).xsmall())
-                        .child(t!("keymap.fixed")),
-                )
-            })
+    /// Explains the lock on the keys the keyboard fixes, which only the Fn layer has.
+    fn render_legend(&self, cx: &mut Context<Self>) -> Option<impl IntoElement> {
+        (self.layer == Layer::Fn).then(|| {
+            h_flex()
+                .w(keyboard::WIDTH)
+                .gap_1()
+                .text_xs()
+                .text_color(cx.theme().muted_foreground)
+                .child(Icon::new(AppIconName::Lock).xsmall())
+                .child(t!("keymap.fixed"))
+        })
     }
 
     /// A message about the whole keymap, with what can be done about it.
@@ -772,17 +765,14 @@ impl Render for KeymapPage {
                     .flex_none()
                     .p(page::INSET)
                     .gap_6()
-                    .child(PageHeader::new(
-                        t!("keymap.title"),
-                        t!("keymap.description"),
-                    ))
+                    .child(PageHeader::new(t!("keymap.title")))
                     .children(status)
                     .child(
                         v_flex()
                             .gap_2()
                             .when(loaded, |this| this.child(self.render_toolbar(cx)))
                             .child(self.render_board(window, cx))
-                            .when(loaded, |this| this.child(self.render_legend(cx))),
+                            .when(loaded, |this| this.children(self.render_legend(cx))),
                     )
                     .when(loaded, |this| this.children(self.render_notices(cx))),
             )

@@ -173,7 +173,7 @@ impl Render for MonitorPage {
             .w_full()
             .p(page::INSET)
             .gap_6()
-            .child(PageHeader::new(t!("monitor.title"), description))
+            .child(PageHeader::new(t!("monitor.title")).description(description))
             .when_some(self.failure.clone(), |this, failure| {
                 this.child(
                     v_flex()

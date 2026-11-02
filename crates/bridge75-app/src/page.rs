@@ -9,19 +9,24 @@ use gpui_kit::{
 /// Space between the edge of a page and its content.
 pub const INSET: Rems = rems(1.5);
 
-/// Title and description at the top of a page.
+/// Title at the top of a page, with a description when the page needs one.
 #[derive(IntoElement)]
 pub struct PageHeader {
     title: SharedString,
-    description: SharedString,
+    description: Option<SharedString>,
 }
 
 impl PageHeader {
-    pub fn new(title: impl Into<SharedString>, description: impl Into<SharedString>) -> Self {
+    pub fn new(title: impl Into<SharedString>) -> Self {
         PageHeader {
             title: title.into(),
-            description: description.into(),
+            description: None,
         }
+    }
+
+    pub fn description(mut self, description: impl Into<SharedString>) -> Self {
+        self.description = Some(description.into());
+        self
     }
 }
 
@@ -35,12 +40,12 @@ impl RenderOnce for PageHeader {
                     .font_weight(FontWeight::SEMIBOLD)
                     .child(self.title),
             )
-            .child(
+            .children(self.description.map(|description| {
                 div()
                     .text_sm()
                     .text_color(cx.theme().muted_foreground)
-                    .child(self.description),
-            )
+                    .child(description)
+            }))
     }
 }
 
