@@ -269,6 +269,10 @@ impl TriggerPage {
             return;
         }
         self.change_selection(KeySelection::clear, window, cx);
+        // The editor goes away with the selection; keep focus where the board's keys work.
+        if self.is_loaded(cx) {
+            self.board_focus.focus(window, cx);
+        }
     }
 
     fn click_key(

@@ -39,6 +39,13 @@ impl<T> Loadable<T> {
             _ => None,
         }
     }
+
+    pub fn loaded_mut(&mut self) -> Option<&mut T> {
+        match self {
+            Loadable::Loaded(value) => Some(value),
+            _ => None,
+        }
+    }
 }
 
 #[derive(Clone, Debug)]

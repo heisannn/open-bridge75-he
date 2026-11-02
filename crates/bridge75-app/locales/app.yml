@@ -5,6 +5,9 @@ _version: 2
 app.title:
   en: Bridge75 HE
   ja: Bridge75 HE
+app.quit:
+  en: Quit Bridge75 HE
+  ja: Bridge75 HE を終了
 
 nav.overview:
   en: Keyboard
@@ -12,6 +15,9 @@ nav.overview:
 nav.trigger:
   en: Trigger
   ja: トリガー
+nav.keymap:
+  en: Keymap
+  ja: キーマップ
 nav.monitor:
   en: Key travel
   ja: 押し込み量
@@ -188,6 +194,310 @@ trigger.decrease_field:
 trigger.increase_field:
   en: Increase %{field}
   ja: "%{field}を増やす"
+
+keymap.title:
+  en: Keymap
+  ja: キーマップ
+keymap.description:
+  en: Choose what each key sends. The keyboard can't report its keymap, so the app shows the keymap it last wrote to this keyboard.
+  ja: 各キーが送る内容を設定します。キーボードからはキーマップを読み取れないため、このアプリが最後にこのキーボードへ書き込んだキーマップを表示します。
+keymap.not_written:
+  en: This app hasn't written a keymap to this keyboard yet, so the default keymap is shown. Changing a key writes the whole keymap and replaces assignments made with other apps.
+  ja: このアプリはまだこのキーボードにキーマップを書き込んでいないため、既定のキーマップを表示しています。キーを変更するとキーマップ全体を書き込むので、ほかのアプリで設定した割り当ては置き換わります。
+keymap.loading:
+  en: Loading the keymap…
+  ja: キーマップを読み込んでいます…
+keymap.load_failed:
+  en: Couldn't load the keymap.
+  ja: キーマップを読み込めませんでした。
+keymap.retry:
+  en: Try again
+  ja: 再試行
+keymap.board:
+  en: Keys
+  ja: キー
+keymap.layer.base:
+  en: Base layer
+  ja: 通常レイヤー
+keymap.layer.fn:
+  en: Fn layer
+  ja: Fn レイヤー
+keymap.legend.changed:
+  en: Changed keys show what they send below the key name.
+  ja: 変更したキーには、キー名の下に割り当てを表示します。
+keymap.fixed:
+  en: Fixed by the keyboard
+  ja: キーボードで固定
+keymap.fixed_key:
+  en: The keyboard fixes what this key does while Fn is held, so it can't be changed.
+  ja: このキーを Fn と一緒に押したときの動作はキーボードで固定されているため、変更できません。
+keymap.no_selection:
+  en: Select a key to change what it sends.
+  ja: 送る内容を変更するキーを選択してください。
+keymap.undo:
+  en: Undo
+  ja: 元に戻す
+keymap.undo_tooltip:
+  en: Undo the last change
+  ja: 直前の変更を元に戻す
+keymap.assignment_of:
+  en: What %{key} sends
+  ja: "%{key} の割り当て"
+keymap.default_is:
+  en: "Default: %{action}"
+  ja: "既定: %{action}"
+keymap.restore_default:
+  en: Restore default
+  ja: 既定に戻す
+keymap.change:
+  en: Change…
+  ja: 変更…
+keymap.modifiers:
+  en: Modifiers
+  ja: 修飾キー
+keymap.modifiers.note:
+  en: Sent together with %{key}. Up to two.
+  ja: "%{key} と同時に送ります。2 つまで選べます。"
+keymap.write_failed:
+  en: Couldn't write the keymap. The keyboard may not have the assignments shown. Check the USB cable and write it again.
+  ja: キーマップを書き込めませんでした。表示中の割り当てがキーボードに反映されていない可能性があります。USB ケーブルを確認して、もう一度書き込んでください。
+keymap.write_again:
+  en: Write again
+  ja: もう一度書き込む
+keymap.save_failed:
+  en: The keyboard has the keymap, but it couldn't be saved on this computer. Next time, the app may show an older keymap.
+  ja: キーマップはキーボードに書き込みましたが、このコンピューターに保存できませんでした。次回は古いキーマップが表示される場合があります。
+keymap.no_fn_key:
+  en: No key on the base layer is Fn, so the Fn layer can't be used.
+  ja: 通常レイヤーに Fn キーがないため、Fn レイヤーを使えません。
+keymap.group.general:
+  en: General
+  ja: 基本
+keymap.group.letters:
+  en: Letters
+  ja: 英字
+keymap.group.numbers:
+  en: Numbers
+  ja: 数字
+keymap.group.symbols:
+  en: Symbols
+  ja: 記号
+keymap.group.editing:
+  en: Editing and navigation
+  ja: 編集・移動
+keymap.group.modifiers:
+  en: Modifiers
+  ja: 修飾キー
+keymap.group.function:
+  en: Function keys
+  ja: ファンクションキー
+keymap.group.numpad:
+  en: Numpad
+  ja: テンキー
+keymap.group.international:
+  en: International
+  ja: 国際キー
+keymap.group.media:
+  en: Media
+  ja: メディア
+keymap.group.mouse:
+  en: Mouse
+  ja: マウス
+keymap.group.keyboard:
+  en: Keyboard functions
+  ja: キーボード機能
+keymap.key.space:
+  en: Space
+  ja: スペース
+keymap.key.left:
+  en: Left arrow
+  ja: 左矢印
+keymap.key.right:
+  en: Right arrow
+  ja: 右矢印
+keymap.key.up:
+  en: Up arrow
+  ja: 上矢印
+keymap.key.down:
+  en: Down arrow
+  ja: 下矢印
+keymap.key.left_modifier:
+  en: Left %{key}
+  ja: 左 %{key}
+keymap.key.right_modifier:
+  en: Right %{key}
+  ja: 右 %{key}
+keymap.key.numpad:
+  en: Numpad %{key}
+  ja: テンキー %{key}
+keymap.key.power:
+  en: Power
+  ja: 電源
+keymap.key.usage:
+  en: HID code %{code}
+  ja: HID コード %{code}
+keymap.key.ro:
+  en: Ro (JIS)
+  ja: ろ
+keymap.key.ro.short:
+  en: Ro
+  ja: ろ
+keymap.key.kana:
+  en: Katakana/Hiragana
+  ja: カタカナ/ひらがな
+keymap.key.kana.short:
+  en: Kana
+  ja: かな
+keymap.key.henkan:
+  en: Henkan
+  ja: 変換
+keymap.key.henkan.short:
+  en: Henkan
+  ja: 変換
+keymap.key.muhenkan:
+  en: Muhenkan
+  ja: 無変換
+keymap.key.muhenkan.short:
+  en: Muhen
+  ja: 無変換
+keymap.key.lang1:
+  en: Lang 1 (Kana on Mac)
+  ja: かな（Mac）
+keymap.key.lang1.short:
+  en: Lang1
+  ja: かな
+keymap.key.lang2:
+  en: Lang 2 (Eisu on Mac)
+  ja: 英数（Mac）
+keymap.key.lang2.short:
+  en: Lang2
+  ja: 英数
+keymap.action.none:
+  en: None (sends nothing)
+  ja: なし（何も送らない）
+keymap.action.none.short:
+  en: None
+  ja: なし
+keymap.action.macro:
+  en: Macro %{slot}
+  ja: マクロ %{slot}
+keymap.action.advanced:
+  en: Advanced key %{slot}
+  ja: アドバンスドキー %{slot}
+keymap.action.event:
+  en: Event key %{key}
+  ja: イベントキー %{key}
+keymap.action.socd:
+  en: Toggle SOCD pair %{pair}
+  ja: SOCD ペア %{pair} を切り替え
+keymap.action.socd_all:
+  en: Toggle SOCD
+  ja: SOCD を切り替え
+keymap.media.volume_up:
+  en: Volume up
+  ja: 音量を上げる
+keymap.media.volume_up.short:
+  en: Vol+
+  ja: 音量+
+keymap.media.volume_down:
+  en: Volume down
+  ja: 音量を下げる
+keymap.media.volume_down.short:
+  en: Vol−
+  ja: 音量−
+keymap.media.mute:
+  en: Mute
+  ja: ミュート
+keymap.media.other:
+  en: Media %{bit}
+  ja: メディア %{bit}
+keymap.mouse.left:
+  en: Left click
+  ja: 左クリック
+keymap.mouse.left.short:
+  en: LClick
+  ja: 左クリック
+keymap.mouse.right:
+  en: Right click
+  ja: 右クリック
+keymap.mouse.right.short:
+  en: RClick
+  ja: 右クリック
+keymap.mouse.middle:
+  en: Middle click
+  ja: 中クリック
+keymap.mouse.middle.short:
+  en: MClick
+  ja: 中クリック
+keymap.mouse.back:
+  en: Back button
+  ja: 戻るボタン
+keymap.mouse.back.short:
+  en: Back
+  ja: 戻る
+keymap.mouse.forward:
+  en: Forward button
+  ja: 進むボタン
+keymap.mouse.forward.short:
+  en: Fwd
+  ja: 進む
+keymap.mouse.buttons:
+  en: Mouse buttons %{buttons}
+  ja: マウスボタン %{buttons}
+keymap.mouse.buttons.short:
+  en: Mouse
+  ja: マウス
+keymap.mouse.wheel_up:
+  en: Wheel up
+  ja: ホイール上
+keymap.mouse.wheel_up.short:
+  en: Wheel↑
+  ja: ホイール↑
+keymap.mouse.wheel_down:
+  en: Wheel down
+  ja: ホイール下
+keymap.mouse.wheel_down.short:
+  en: Wheel↓
+  ja: ホイール↓
+keymap.sys.lock_all:
+  en: Lock all keys
+  ja: 全キーをロック
+keymap.sys.lock_all.short:
+  en: Lock
+  ja: ロック
+keymap.sys.kro_toggle:
+  en: Switch 6KRO / NKRO
+  ja: 6KRO / NKRO を切り替え
+keymap.sys.kro6:
+  en: Use 6KRO
+  ja: 6KRO にする
+keymap.sys.nkro:
+  en: Use NKRO
+  ja: NKRO にする
+keymap.sys.win_lock_toggle:
+  en: Toggle Windows key lock
+  ja: Windows キーのロックを切り替え
+keymap.sys.win_lock_toggle.short:
+  en: WinLk
+  ja: WinLk
+keymap.sys.win_lock_on:
+  en: Lock the Windows key
+  ja: Windows キーをロック
+keymap.sys.win_lock_on.short:
+  en: WinLk On
+  ja: WinLk On
+keymap.sys.win_lock_off:
+  en: Unlock the Windows key
+  ja: Windows キーのロックを解除
+keymap.sys.win_lock_off.short:
+  en: WinLk Off
+  ja: WinLk Off
+keymap.sys.os_win:
+  en: Windows mode
+  ja: Windows モード
+keymap.sys.os_mac:
+  en: Mac mode
+  ja: Mac モード
 
 unit.mm:
   en: "%{value} mm"

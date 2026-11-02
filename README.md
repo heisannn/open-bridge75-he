@@ -22,14 +22,14 @@ The CLI is tested on the real keyboard (FW V1.13.10, Windows 11). The desktop ap
 - [x] Trigger settings on a to-scale keyboard: written as soon as they change, undo with Ctrl+Z, keyboard navigation
 - [x] Live key travel
 - [x] English and Japanese UI, light and dark appearance
-- [ ] Keymap (base and Fn layers)
+- [x] Keymap (base and Fn layers): kept on this computer for each keyboard, since the keyboard cannot report it
 - [ ] Macros
 - [ ] Advanced keys (DKS, Mod-Tap, Toggle)
 - [ ] SOCD
 - [ ] Debounce, polling rate and sleep time
 - [ ] Calibration
 - [ ] Open and save TOML profiles
-- [ ] Remember the keymap, macros and advanced keys of each keyboard (the keyboard cannot report them)
+- [ ] Remember the macros and advanced keys of each keyboard (the keyboard cannot report them)
 - [ ] Import settings from the official configurator
 
 ## Crates

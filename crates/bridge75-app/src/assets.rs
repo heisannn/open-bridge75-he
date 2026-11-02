@@ -4,7 +4,7 @@ use std::borrow::Cow;
 
 use gpui_kit::{AssetSource, Result, SharedString};
 
-gpui_kit::assets::icon_assets!(AppIcons, [Activity, Gauge, Keyboard]);
+gpui_kit::assets::icon_assets!(AppIcons, [Activity, Command, Gauge, Keyboard, Lock]);
 
 pub struct AppAssets;
 

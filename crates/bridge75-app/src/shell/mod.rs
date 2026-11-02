@@ -19,6 +19,7 @@ use rust_i18n::t;
 
 use crate::document::{DocumentEvent, KeyboardDocument};
 use crate::keyboard;
+use crate::keymap::{KeymapDocument, KeymapPage};
 use crate::monitor::MonitorPage;
 use crate::overview::OverviewPage;
 use crate::page;
@@ -29,7 +30,13 @@ pub use nav::Page;
 
 actions!(
     shell,
-    [ShowOverview, ShowTrigger, ShowMonitor, ShowPreferences]
+    [
+        ShowOverview,
+        ShowTrigger,
+        ShowKeymap,
+        ShowMonitor,
+        ShowPreferences
+    ]
 );
 
 const CONTEXT: &str = "Shell";
@@ -51,15 +58,17 @@ pub fn init(cx: &mut App) {
         [
             KeyBinding::new("cmd-1", ShowOverview, Some(CONTEXT)),
             KeyBinding::new("cmd-2", ShowTrigger, Some(CONTEXT)),
-            KeyBinding::new("cmd-3", ShowMonitor, Some(CONTEXT)),
-            KeyBinding::new("cmd-4", ShowPreferences, Some(CONTEXT)),
+            KeyBinding::new("cmd-3", ShowKeymap, Some(CONTEXT)),
+            KeyBinding::new("cmd-4", ShowMonitor, Some(CONTEXT)),
+            KeyBinding::new("cmd-5", ShowPreferences, Some(CONTEXT)),
         ]
     } else {
         [
             KeyBinding::new("ctrl-1", ShowOverview, Some(CONTEXT)),
             KeyBinding::new("ctrl-2", ShowTrigger, Some(CONTEXT)),
-            KeyBinding::new("ctrl-3", ShowMonitor, Some(CONTEXT)),
-            KeyBinding::new("ctrl-4", ShowPreferences, Some(CONTEXT)),
+            KeyBinding::new("ctrl-3", ShowKeymap, Some(CONTEXT)),
+            KeyBinding::new("ctrl-4", ShowMonitor, Some(CONTEXT)),
+            KeyBinding::new("ctrl-5", ShowPreferences, Some(CONTEXT)),
         ]
     };
     cx.bind_keys(bindings);
@@ -73,6 +82,7 @@ pub struct Shell {
     session: Entity<Session>,
     page: Page,
     trigger: Entity<TriggerPage>,
+    keymap: Entity<KeymapPage>,
     monitor: Entity<MonitorPage>,
     /// Keeps the navigation shortcuts working when nothing inside a page has focus.
     focus_handle: FocusHandle,
@@ -83,16 +93,21 @@ impl Shell {
     pub fn new(
         session: Entity<Session>,
         document: Entity<KeyboardDocument>,
+        keymap: Entity<KeymapDocument>,
         window: &mut Window,
         cx: &mut Context<Self>,
     ) -> Self {
         let trigger = cx.new(|cx| TriggerPage::new(document.clone(), window, cx));
+        let keymap = cx.new(|cx| KeymapPage::new(keymap, window, cx));
         let monitor = cx.new(|cx| MonitorPage::new(session.clone(), cx));
         let subscriptions = vec![
             cx.observe(&session, |_, _, cx| cx.notify()),
             cx.subscribe_in(&document, window, |_, _, event, window, cx| {
                 Self::notify_failure(event, window, cx)
             }),
+            // A focused control that goes away (an editor whose selection was cleared, a board
+            // whose keyboard was unplugged) leaves nothing focused, and no shortcut would work.
+            cx.on_focus_lost(window, |this, window, cx| this.restore_focus(window, cx)),
             cx.observe_window_appearance(window, |_, window, cx| {
                 if Preferences::global(cx).appearance == Appearance::System {
                     Theme::sync_system_appearance(Some(window), cx);
@@ -105,10 +120,19 @@ impl Shell {
             session,
             page: Page::Overview,
             trigger,
+            keymap,
             monitor,
             focus_handle,
             _subscriptions: subscriptions,
         }
+    }
+
+    /// Moves focus to the nearest container of the control that lost it, or to the shell.
+    fn restore_focus(&mut self, window: &mut Window, cx: &mut Context<Self>) {
+        let target = window
+            .focus_lost_restore_target(cx)
+            .unwrap_or_else(|| self.focus_handle.clone());
+        target.focus(window, cx);
     }
 
     fn notify_failure(event: &DocumentEvent, window: &mut Window, cx: &mut App) {
@@ -149,6 +173,9 @@ impl Shell {
             Page::Trigger => self
                 .trigger
                 .update(cx, |trigger, cx| trigger.focus(window, cx)),
+            Page::Keymap => self
+                .keymap
+                .update(cx, |keymap, cx| keymap.focus(window, cx)),
             _ => self.focus_handle.focus(window, cx),
         }
         cx.notify();
@@ -202,6 +229,7 @@ impl Shell {
                 OverviewPage::new(self.session.read(cx).state().clone()).into_any_element()
             }
             Page::Trigger => self.trigger.clone().into_any_element(),
+            Page::Keymap => self.keymap.clone().into_any_element(),
             Page::Monitor => self.monitor.clone().into_any_element(),
             Page::Preferences => PreferencesPage.into_any_element(),
         };
@@ -240,6 +268,9 @@ impl Render for Shell {
                 cx.listener(|this, _: &ShowTrigger, window, cx| {
                     this.open(Page::Trigger, window, cx)
                 }),
+            )
+            .on_action(
+                cx.listener(|this, _: &ShowKeymap, window, cx| this.open(Page::Keymap, window, cx)),
             )
             .on_action(
                 cx.listener(|this, _: &ShowMonitor, window, cx| {
@@ -294,16 +325,18 @@ mod tests {
 #[cfg(test)]
 mod shortcut_tests {
     use gpui_kit::test::TestWindowExt as _;
-    use gpui_kit::{Bounds, TestAppContext, WindowBounds, WindowOptions, size};
+    use gpui_kit::{AnyWindowHandle, Bounds, TestAppContext, WindowBounds, WindowOptions, size};
 
     use super::*;
 
-    #[gpui_kit::test]
-    fn pages_open_with_shortcuts(cx: &mut TestAppContext) {
+    /// The shell in a headless window, with a keymap document the test can unplug.
+    fn open(cx: &mut TestAppContext) -> (AnyWindowHandle, Entity<Shell>, Entity<KeymapDocument>) {
+        let mut keymap_document = None;
         let (window, shell) = cx.update(|cx| {
             gpui_kit::init(cx);
             init(cx);
             crate::trigger::init(cx);
+            crate::keymap::init(cx);
             cx.set_global(Preferences::default());
             let options = WindowOptions {
                 window_bounds: Some(WindowBounds::Windowed(Bounds {
@@ -314,27 +347,66 @@ mod shortcut_tests {
             };
             gpui_kit::open_window(options, cx, |window, cx| {
                 let document = cx.new(|cx| KeyboardDocument::for_test(Vec::new(), cx));
+                let keymap = cx.new(|cx| {
+                    KeymapDocument::for_test(
+                        None,
+                        Default::default(),
+                        crate::keymap::KeymapStore::none(),
+                        cx,
+                    )
+                });
+                keymap_document = Some(keymap.clone());
                 let session = cx.new(|_| Session::detached());
-                cx.new(|cx| Shell::new(session, document, window, cx))
+                cx.new(|cx| Shell::new(session, document, keymap, window, cx))
             })
             .unwrap()
         });
-        let modifier = if cx.update(|cx| cx.platform_info().is_mac()) {
+        (window, shell, keymap_document.unwrap())
+    }
+
+    fn modifier(cx: &mut TestAppContext) -> &'static str {
+        if cx.update(|cx| cx.platform_info().is_mac()) {
             "cmd"
         } else {
             "ctrl"
-        };
+        }
+    }
+
+    #[gpui_kit::test]
+    fn pages_open_with_shortcuts(cx: &mut TestAppContext) {
+        let (window, shell, _) = open(cx);
+        let modifier = modifier(cx);
         cx.update_window(window, |_, window, cx| {
             window.render_frame(cx);
             for (key, page) in [
                 ("2", Page::Trigger),
-                ("3", Page::Monitor),
-                ("4", Page::Preferences),
+                ("3", Page::Keymap),
+                ("4", Page::Monitor),
+                ("5", Page::Preferences),
                 ("1", Page::Overview),
             ] {
                 window.press(&format!("{modifier}-{key}"), cx);
                 assert_eq!(shell.read(cx).page, page);
             }
+        })
+        .unwrap();
+    }
+
+    #[gpui_kit::test]
+    fn shortcuts_keep_working_when_the_focused_control_goes_away(cx: &mut TestAppContext) {
+        let (window, shell, keymap) = open(cx);
+        let modifier = modifier(cx);
+        cx.update_window(window, |_, window, cx| {
+            window.render_frame(cx);
+            window.press(&format!("{modifier}-3"), cx);
+            window.render_frame(cx);
+            // Clicking a key focuses the board, which is gone once the keyboard is unplugged.
+            window.click("caps", cx);
+            keymap.update(cx, |keymap, cx| keymap.disconnect_for_test(cx));
+            window.render_frame(cx);
+            window.render_frame(cx);
+            window.press(&format!("{modifier}-1"), cx);
+            assert_eq!(shell.read(cx).page, Page::Overview);
         })
         .unwrap();
     }

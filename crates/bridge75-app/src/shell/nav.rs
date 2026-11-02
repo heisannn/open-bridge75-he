@@ -7,14 +7,16 @@ use rust_i18n::t;
 pub enum Page {
     Overview,
     Trigger,
+    Keymap,
     Monitor,
     Preferences,
 }
 
 impl Page {
-    pub const ALL: [Page; 4] = [
+    pub const ALL: [Page; 5] = [
         Page::Overview,
         Page::Trigger,
+        Page::Keymap,
         Page::Monitor,
         Page::Preferences,
     ];
@@ -28,6 +30,7 @@ impl Page {
         match self {
             Page::Overview => t!("nav.overview"),
             Page::Trigger => t!("nav.trigger"),
+            Page::Keymap => t!("nav.keymap"),
             Page::Monitor => t!("nav.monitor"),
             Page::Preferences => t!("nav.preferences"),
         }
@@ -38,6 +41,7 @@ impl Page {
         match self {
             Page::Overview => IconName::Keyboard,
             Page::Trigger => IconName::Gauge,
+            Page::Keymap => IconName::Command,
             Page::Monitor => IconName::Activity,
             Page::Preferences => IconName::Settings,
         }
@@ -45,6 +49,6 @@ impl Page {
 
     /// Whether the page lays out its own scrolling instead of scrolling as a whole.
     pub fn scrolls_itself(self) -> bool {
-        self == Page::Trigger
+        matches!(self, Page::Trigger | Page::Keymap)
     }
 }

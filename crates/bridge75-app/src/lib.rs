@@ -2,13 +2,15 @@
 //!
 //! Each module is one capability with its state and views. The [`shell`] composes them into the
 //! window; [`session`] owns the connection to the keyboard; [`document`] holds the keyboard's
-//! settings that the pages edit.
+//! settings that the pages edit. The keymap can't be read from the keyboard, so [`keymap`] keeps
+//! its own document of what the app wrote, stored on this computer.
 
 rust_i18n::i18n!("locales", fallback = "en");
 
 mod assets;
 mod document;
 mod keyboard;
+mod keymap;
 mod monitor;
 mod overview;
 mod page;
@@ -18,7 +20,41 @@ mod shell;
 mod trigger;
 
 use gpui_kit::component::TitleBar;
-use gpui_kit::{AppContext as _, WindowBounds, WindowOptions, px, size};
+use gpui_kit::{
+    App, AppContext as _, KeyBinding, Menu, MenuItem, WindowBounds, WindowOptions, actions, px,
+    size,
+};
+
+actions!(
+    app,
+    [
+        /// Quit the app.
+        Quit,
+    ]
+);
+
+/// Lets the app quit with cmd-q on macOS, as macOS apps do. Elsewhere, closing the window
+/// quits it.
+fn init_quit(cx: &mut App) {
+    cx.on_action(|_: &Quit, cx| cx.quit());
+    if !cx.platform_info().is_mac() {
+        return;
+    }
+    cx.bind_keys([KeyBinding::new("cmd-q", Quit, None)]);
+    set_app_menu(cx);
+    // The menu follows the language chosen in the preferences.
+    cx.observe_global::<preferences::Preferences>(set_app_menu)
+        .detach();
+}
+
+/// The menu of the app in the macOS menu bar, which shows its shortcut too.
+fn set_app_menu(cx: &mut App) {
+    cx.set_menus([Menu {
+        name: rust_i18n::t!("app.title").into(),
+        items: vec![MenuItem::action(rust_i18n::t!("app.quit"), Quit)],
+        disabled: false,
+    }]);
+}
 
 /// Opens the main window and runs until it is closed.
 pub fn run() {
@@ -29,9 +65,12 @@ pub fn run() {
             preferences::init(cx);
             shell::init(cx);
             trigger::init(cx);
+            keymap::init(cx);
+            init_quit(cx);
 
             let session = session::new(cx);
             let document = document::new(session.clone(), cx);
+            let keymap = keymap::new(session.clone(), cx);
             // Window geometry is a platform boundary, so it is given in pixels.
             let options = WindowOptions {
                 window_bounds: Some(WindowBounds::centered(size(px(1180.), px(800.)), cx)),
@@ -40,7 +79,7 @@ pub fn run() {
             };
             gpui_kit::open_window(options, cx, |window, cx| {
                 window.set_window_title(&rust_i18n::t!("app.title"));
-                cx.new(|cx| shell::Shell::new(session, document, window, cx))
+                cx.new(|cx| shell::Shell::new(session, document, keymap, window, cx))
             })
             .expect("failed to open the main window");
 
@@ -56,6 +95,21 @@ pub fn run() {
 
 #[cfg(test)]
 mod tests {
+    #[gpui_kit::test]
+    fn cmd_q_quits_on_macos(cx: &mut gpui_kit::TestAppContext) {
+        cx.update(|cx| {
+            super::init_quit(cx);
+            let keystroke = gpui_kit::Keystroke::parse("cmd-q").unwrap();
+            let bindings = cx.all_bindings_for_input(&[keystroke]);
+            if cx.platform_info().is_mac() {
+                assert_eq!(bindings.len(), 1);
+                assert!(bindings[0].action().partial_eq(&super::Quit));
+            } else {
+                assert!(bindings.is_empty());
+            }
+        });
+    }
+
     use std::collections::{BTreeMap, BTreeSet};
     use std::path::Path;
 
