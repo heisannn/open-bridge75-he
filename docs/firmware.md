@@ -192,7 +192,7 @@ Defaults (sub_3A72, on sub6 / reset): mode=0, +1=18, +2=18 (1.8mm), +4..5=0 (aut
 | 5 | `[7]=row,[8]=col` | Key setting query | `[5]=4,[6]=5,[7]=mode,[8]=actuation point(+2),[9]=release point(+1),[10]=RT press(+6),[11]=RT release(+7)` (actually 5 bytes) |
 | 6 | None | Resets all keys to defaults (sub_3A72(0)+sub_27E0). Schedules a save | `[5]=1,[6]=0` |
 | 7 | `[7]=row,[8]=col` | Single-key calibration (section 3.5). Sets +4..5 at that position to 0. row / col are not range-checked | Immediately `[5]=2,[6]=7,[7]=1`. On success `[7]=0` (automatic notification), on timeout `[7]=2` |
-| 8 | `[7]=0` start / `[7]≠0` abort | All-key calibration (section 3.5) | `[5]=24,[6]=8,[7]=state(1=running, 4=aborted / finished),[8..29]=bitmap of calibrated keys(22B)`. Re-sent on each progress update |
+| 8 | `[7]=0` start / `[7]≠0` abort | All-key calibration (section 3.5) | `[5]=24,[6]=8,[7]=state(1=running, 0=finished with every key calibrated (seen on the real keyboard), 4=aborted / finished),[8..29]=bitmap of calibrated keys(22B)`. Re-sent on each progress update |
 | 9 | `[7]=0` query / `[7]=1` set, `[8]=1/2/4/8` | Polling rate (kHz). Values other than 1/2/4/8 are ignored. Default 8. Only the hidden measurement mode (section 9) uses the value. Even a query calls sub_C954 (schedules a settings save) | `[5]=2,[6]=9,[7]=rate` |
 | 10 | `[7]=0` query / `[7]=1` set, `[8]=value` | Debounce ("AntiShake" in the official configurator). Threshold in section 3.2 = value + 3. Default 3. Not range-checked. Even a query calls sub_C954 | `[5]=2,[6]=10,[7]=value` |
 

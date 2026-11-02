@@ -344,8 +344,9 @@ impl From<u8> for KeyCalibration {
 /// Status of all-key calibration (sub8).
 #[derive(Clone, Copy, PartialEq, Eq, Debug)]
 pub enum AllCalibration {
+    /// 1.
     Running,
-    /// Aborted, or finished.
+    /// 0 once every key is calibrated, 4 when aborted or ended otherwise.
     Finished,
     Other(u8),
 }
@@ -354,7 +355,7 @@ impl From<u8> for AllCalibration {
     fn from(v: u8) -> Self {
         match v {
             1 => AllCalibration::Running,
-            4 => AllCalibration::Finished,
+            0 | 4 => AllCalibration::Finished,
             v => AllCalibration::Other(v),
         }
     }
@@ -382,6 +383,15 @@ mod tests {
         assert_eq!(c.mode, TriggerMode::Rapid);
         assert_eq!(c.actuation.raw(), 16);
         assert!(TriggerConfig::from_wire([5, 0, 0, 0, 0]).is_err());
+    }
+
+    #[test]
+    fn all_key_calibration_states() {
+        assert_eq!(AllCalibration::from(1), AllCalibration::Running);
+        // Sent by the real keyboard after the last of the 81 keys was calibrated.
+        assert_eq!(AllCalibration::from(0), AllCalibration::Finished);
+        assert_eq!(AllCalibration::from(4), AllCalibration::Finished);
+        assert_eq!(AllCalibration::from(2), AllCalibration::Other(2));
     }
 
     #[test]
